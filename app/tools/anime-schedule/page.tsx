@@ -16,7 +16,7 @@ export default function AnimePage() {
         </h1>
         <p className="text-slate-400 max-w-xl mx-auto">
           Daftar anime yang sedang tayang musim ini (Now Airing). 
-          Data diambil langsung secara <b>Real-time</b> dari MyAnimeList.
+          Data diambil langsung secara <b>Real-time</b>
         </p>
       </section>
 

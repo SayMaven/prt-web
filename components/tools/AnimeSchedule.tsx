@@ -112,7 +112,7 @@ export default function AnimeSchedule() {
       
       <div className="text-center mt-8">
         <p className="text-xs text-slate-500">
-          Data powered by <a href="https://jikan.moe/" className="underline hover:text-blue-400">Jikan API</a> (Unofficial MyAnimeList API)
+          Data powered by <a href="https://jikan.moe/" className="underline hover:text-blue-400">Jikan API</a>
         </p>
       </div>
 
