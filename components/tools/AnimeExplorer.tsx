@@ -53,13 +53,13 @@ export default function AnimeExplorer() {
   const [animes, setAnimes] = useState<Anime[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // --- FILTER DEFAULTS (SESUAI REQUEST) ---
+  // --- FILTER DEFAULTS ---
   const [query, setQuery] = useState("");
-  const [selectedGenre, setSelectedGenre] = useState(""); // Default: All Genres
-  const [status, setStatus] = useState("airing"); // Default: Sedang Tayang
-  const [type, setType] = useState(""); // Default: All Types
-  const [orderBy, setOrderBy] = useState("start_date"); // Default: Newest Release
-  const [sort, setSort] = useState("desc"); // Default: Descending (Terbaru ke Terlama)
+  const [selectedGenre, setSelectedGenre] = useState("");
+  const [status, setStatus] = useState("airing"); 
+  const [type, setType] = useState("");
+  const [orderBy, setOrderBy] = useState("start_date");
+  const [sort, setSort] = useState("desc");
 
   // Pagination State
   const [page, setPage] = useState(1);
@@ -80,7 +80,7 @@ export default function AnimeExplorer() {
       const params = new URLSearchParams({
         q: query,
         page: targetPage.toString(),
-        limit: "24", 
+        limit: "24", // Menampilkan 24 anime per page
         order_by: orderBy,
         sort: sort, 
         sfw: "true",
@@ -132,28 +132,19 @@ export default function AnimeExplorer() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Kalau user cari judul, kita reset status biar ketemu semua
     if(query) setStatus(""); 
     fetchAnime(1); 
   };
 
   const handleSortChange = (value: string) => {
     setOrderBy(value);
-    // Logika Sort: Kalau "Title" urut A-Z (asc), sisanya Descending (besar ke kecil)
     if (value === "title") setSort("asc");
     else setSort("desc");
-    
-    // Kita reset page ke 1 saat ganti sort biar rapi
     setPage(1);
-    // (Optional: Bisa langsung fetchAnime(1) disini tapi useEffect dependency akan menanganinya jika diatur, 
-    //  tapi untuk tombol select manual lebih aman panggil fetch di useEffect atau tombol cari. 
-    //  Di sini user perlu klik "Cari" atau kita bisa pasang useEffect khusus orderBy/sort).
   };
   
-  // Efek samping: Fetch ulang otomatis kalau filter berubah (opsional, biar UX lebih cepat)
+  // Auto fetch saat filter ganti (Opsional, matikan jika ingin manual tombol cari)
   useEffect(() => {
-     // Hindari fetch double saat mount (page 1 sudah di-handle useEffect pertama)
-     // Tapi untuk ganti dropdown langsung update, bisa aktifkan ini:
      if (paginationInfo.last_visible_page > 1 || orderBy !== "start_date" || status !== "airing") {
          fetchAnime(1);
      }
@@ -173,55 +164,52 @@ export default function AnimeExplorer() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       
       {/* --- FILTER SECTION --- */}
-      <div className="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl">
-        <form onSubmit={handleSearch} className="space-y-4">
+      <div className="bg-slate-900/80 border border-slate-800 p-4 md:p-6 rounded-2xl shadow-xl">
+        <form onSubmit={handleSearch} className="space-y-3 md:space-y-4">
           
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="Cari Judul (e.g. Bang Dream!)..."
+              placeholder="Cari Judul..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-600"
+              className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 md:py-3 text-white focus:outline-none focus:border-blue-500 placeholder:text-slate-600 text-sm md:text-base"
             />
             <button 
               type="submit"
-              className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-6 py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20"
+              className="bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 md:px-6 py-2.5 md:py-3 rounded-xl transition-all shadow-lg shadow-blue-500/20 text-sm md:text-base"
             >
-              🔍 Cari
+              🔍
             </button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {/* 1. Genre */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3">
             <select 
               value={selectedGenre} 
               onChange={(e) => setSelectedGenre(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-lg p-2.5 focus:border-blue-500"
+              className="bg-slate-800 border border-slate-700 text-slate-300 text-xs md:text-sm rounded-lg p-2 md:p-2.5 focus:border-blue-500"
             >
               {GENRES.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
             </select>
 
-            {/* 2. Status (Default: Sedang Tayang) */}
             <select 
               value={status} 
               onChange={(e) => setStatus(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-lg p-2.5 focus:border-blue-500"
+              className="bg-slate-800 border border-slate-700 text-slate-300 text-xs md:text-sm rounded-lg p-2 md:p-2.5 focus:border-blue-500"
             >
               <option value="">All Status</option>
-              <option value="airing">Sedang Tayang (On Going)</option>
-              <option value="complete">Tamat (Finished)</option>
-              <option value="upcoming">Akan Datang (Upcoming)</option>
+              <option value="airing">Sedang Tayang</option>
+              <option value="complete">Tamat</option>
+              <option value="upcoming">Akan Datang</option>
             </select>
 
-            {/* 3. Type */}
             <select 
               value={type} 
               onChange={(e) => setType(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-lg p-2.5 focus:border-blue-500"
+              className="bg-slate-800 border border-slate-700 text-slate-300 text-xs md:text-sm rounded-lg p-2 md:p-2.5 focus:border-blue-500"
             >
               <option value="">All Types</option>
               <option value="tv">TV Series</option>
@@ -229,11 +217,10 @@ export default function AnimeExplorer() {
               <option value="ova">OVA</option>
             </select>
 
-             {/* 4. Sort (Default: Newest Release) */}
              <select 
               value={orderBy} 
               onChange={(e) => handleSortChange(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-slate-300 text-sm rounded-lg p-2.5 focus:border-blue-500"
+              className="bg-slate-800 border border-slate-700 text-slate-300 text-xs md:text-sm rounded-lg p-2 md:p-2.5 focus:border-blue-500"
             >
               <option value="start_date">Newest Release</option>
               <option value="popularity">Most Popular</option>
@@ -253,7 +240,8 @@ export default function AnimeExplorer() {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* 👇 PERUBAHAN UTAMA DI SINI (Grid 2 Kolom di Mobile) */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 md:gap-6">
             {animes.length > 0 ? (
               animes.map((anime) => (
                 <a 
@@ -261,7 +249,7 @@ export default function AnimeExplorer() {
                   href={anime.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative bg-slate-900 rounded-xl overflow-hidden border border-slate-800 hover:border-blue-500 transition-all hover:-translate-y-1 shadow-lg"
+                  className="group relative bg-slate-900 rounded-lg md:rounded-xl overflow-hidden border border-slate-800 hover:border-blue-500 transition-all hover:-translate-y-1 shadow-lg flex flex-col"
                 >
                   <div className="aspect-[3/4] overflow-hidden relative">
                     <img 
@@ -269,35 +257,42 @@ export default function AnimeExplorer() {
                       alt={anime.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute top-2 left-2 flex gap-1">
-                      <span className="bg-black/70 backdrop-blur text-white text-[10px] px-2 py-0.5 rounded border border-white/10 uppercase font-bold">
+                    <div className="absolute top-1.5 left-1.5 md:top-2 md:left-2 flex gap-1">
+                      <span className="bg-black/70 backdrop-blur text-white text-[9px] md:text-[10px] px-1.5 py-0.5 rounded border border-white/10 uppercase font-bold">
                         {anime.type || "TV"}
                       </span>
                       {anime.episodes && (
-                        <span className="bg-blue-600/80 backdrop-blur text-white text-[10px] px-2 py-0.5 rounded border border-blue-400/30 font-bold">
-                          {anime.episodes} Eps
+                        <span className="bg-blue-600/80 backdrop-blur text-white text-[9px] md:text-[10px] px-1.5 py-0.5 rounded border border-blue-400/30 font-bold hidden sm:block">
+                          {anime.episodes} Ep
                         </span>
                       )}
                     </div>
+                    {/* Score Badge Mobile Friendly */}
+                    <div className="absolute bottom-0 right-0 bg-slate-900/90 px-2 py-0.5 rounded-tl-lg text-yellow-400 font-bold text-xs md:hidden flex items-center gap-1">
+                         ⭐ {anime.score || "?"}
+                    </div>
                   </div>
 
-                  <div className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                       <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
-                         {anime.status === "Currently Airing" ? "🟢 Airing" : anime.year || "Finished"}
-                       </span>
-                       <div className="flex items-center gap-1 text-yellow-400 font-bold text-xs">
-                         ⭐ {anime.score || "N/A"}
-                       </div>
+                  <div className="p-3 md:p-4 flex-1 flex flex-col justify-between">
+                    <div>
+                      {/* Desktop Only Score Info */}
+                      <div className="hidden md:flex justify-between items-start mb-2">
+                        <span className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+                          {anime.status === "Currently Airing" ? "🟢 Airing" : anime.year || "Finished"}
+                        </span>
+                        <div className="flex items-center gap-1 text-yellow-400 font-bold text-xs">
+                          ⭐ {anime.score || "N/A"}
+                        </div>
+                      </div>
+
+                      <h3 className="text-white font-bold leading-tight line-clamp-2 mb-2 text-sm md:text-base group-hover:text-blue-400 transition-colors">
+                        {anime.title}
+                      </h3>
                     </div>
 
-                    <h3 className="text-white font-bold leading-tight line-clamp-2 mb-2 group-hover:text-blue-400 transition-colors">
-                      {anime.title}
-                    </h3>
-
-                    <div className="flex flex-wrap gap-1">
-                      {anime.genres.slice(0, 3).map((g, i) => (
-                        <span key={i} className="text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {anime.genres.slice(0, 2).map((g, i) => (
+                        <span key={i} className="text-[9px] md:text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700/50">
                           {g.name}
                         </span>
                       ))}
@@ -314,32 +309,32 @@ export default function AnimeExplorer() {
 
           {/* --- PAGINATION --- */}
           {animes.length > 0 && (
-             <div className="flex flex-col md:flex-row items-center justify-center gap-4 pt-8 border-t border-slate-800">
+             <div className="flex flex-col md:flex-row items-center justify-center gap-4 pt-6 md:pt-8 border-t border-slate-800">
                
                <div className="flex items-center gap-2">
                  <button 
                    onClick={() => fetchAnime(page - 1)}
                    disabled={page === 1}
-                   className="px-4 py-2 bg-slate-800 rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-bold text-sm"
+                   className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-800 rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-bold text-xs md:text-sm"
                  >
                    ⬅ Prev
                  </button>
                  
-                 <span className="text-slate-300 text-sm font-bold bg-slate-900 px-4 py-2 rounded-lg border border-slate-700">
+                 <span className="text-slate-300 text-xs md:text-sm font-bold bg-slate-900 px-3 py-1.5 md:px-4 md:py-2 rounded-lg border border-slate-700">
                     Page {page} <span className="text-slate-600 font-normal">of {paginationInfo.last_visible_page}</span>
                  </span>
 
                  <button 
                    onClick={() => fetchAnime(page + 1)}
                    disabled={!paginationInfo.has_next_page}
-                   className="px-4 py-2 bg-slate-800 rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-bold text-sm"
+                   className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-800 rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-bold text-xs md:text-sm"
                  >
                    Next ➡
                  </button>
                </div>
 
                <form onSubmit={handleJumpPage} className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500 hidden md:block">Jump to:</span>
+                  <span className="text-xs text-slate-500 hidden md:block">Jump:</span>
                   <input 
                     type="number" 
                     min="1" 
@@ -347,11 +342,11 @@ export default function AnimeExplorer() {
                     placeholder="#"
                     value={jumpPage}
                     onChange={(e) => setJumpPage(e.target.value)}
-                    className="w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-2 text-center text-white text-sm focus:border-blue-500 outline-none"
+                    className="w-12 md:w-16 bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 md:py-2 text-center text-white text-xs md:text-sm focus:border-blue-500 outline-none"
                   />
                   <button 
                     type="submit"
-                    className="px-3 py-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg text-sm font-bold transition-colors"
+                    className="px-3 py-1.5 md:py-2 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg text-xs md:text-sm font-bold transition-colors"
                   >
                     Go
                   </button>

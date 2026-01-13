@@ -99,7 +99,7 @@ export default function Home() {
              <span className="text-emerald-400 font-bold text-xs uppercase tracking-widest mb-2">Latest Project</span>
              <h3 className="text-2xl font-bold text-white mb-2">Portfolio Website V1</h3>
              <p className="text-slate-400 text-sm mb-6 max-w-md">
-                Website ini sendiri adalah project utama saat ini. Dibangun menggunakan Next.js 14, TypeScript, Tailwind CSS, dan Native React.
+                Website ini sendiri adalah project utama saat ini. Dibangun menggunakan Next.js , TypeScript, Tailwind CSS, dan Native React.
              </p>
              <div className="flex gap-2">
                  <span className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 border border-slate-700">Next.js</span>

@@ -14,7 +14,7 @@ export default function AnimeExplorerPage() {
         <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-400">
           Anime Finder Ultimate 
         </h1>
-        <p className="text-slate-400 max-w-2xl mx-auto">
+        <p className="text-slate-300 max-w-2xl mx-auto">
           Database anime terlengkap. Cari anime favoritmu berdasarkan Genre, Status Tayang, atau Score tertinggi.
         </p>
       </section>
