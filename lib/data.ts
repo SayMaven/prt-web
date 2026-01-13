@@ -49,19 +49,19 @@ export const projects = [
 export const tools = [
   {
     id: 1,
-    title: "Word Counter",
-    description: "Hitung jumlah kata, karakter, dan estimasi waktu baca dengan cepat.",
-    link: "/tools/word-counter",
-    icon: "📝", 
-    status: "Ready"
+    title: "Anime Season",
+    description: "Cek anime apa saja yang sedang tayang musim ini (API Integration).",
+    icon: "⛩️", 
+    link: "/tools/anime-schedule",
+    status: "Ready",
   },
   {
     id: 2,
-    title: "Password Generator",
-    description: "Buat password acak yang kuat dan aman dengan kustomisasi karakter.",
-    link: "/tools/password-gen", 
-    icon: "🔐",
-    status: "Ready"
+    title: "Anime Finder", // Nama diubah jadi lebih general
+    description: "Database pencarian anime super lengkap (Genre, Year, Score, dll).",
+    icon: "🔍", 
+    link: "/tools/anime-explorer", // Link arahkan ke folder baru
+    status: "Ready", // Status baru biar keren
   },
   {
   id: 3, // Pastikan ID-nya urut (1, 2, 3...)
@@ -134,5 +134,37 @@ export const tools = [
   icon: "⌨️", // Ikon Keyboard
   link: "/tools/typing-test",
   status: "Ready",
+  },
+  {
+    id: 12,
+    title: "Random Picker",
+    description: "Alat pengacak pilihan. Cocok buat yang susah ambil keputusan (Gacha style).",
+    icon: "🎲", 
+    link: "/tools/random-picker",
+    status: "Ready",
+  },
+  {
+    id: 13,
+    title: "BPM Tapper",
+    description: "Cari tahu tempo (BPM) lagu dengan mengetuk irama.",
+    icon: "🥁", 
+    link: "/tools/bpm-tapper",
+    status: "Ready",
+  },
+  {
+    id: 14,
+    title: "Word Counter",
+    description: "Hitung jumlah kata, karakter, dan estimasi waktu baca dengan cepat.",
+    link: "/tools/word-counter",
+    icon: "📝", 
+    status: "Ready"
+  },
+  {
+    id: 15,
+    title: "Password Generator",
+    description: "Buat password acak yang kuat dan aman dengan kustomisasi karakter.",
+    link: "/tools/password-gen", 
+    icon: "🔐",
+    status: "Ready"
   },
 ];
