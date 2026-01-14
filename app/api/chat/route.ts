@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
+      model: "gemini-2.5-flash",
       safetySettings: [
         {
           category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
         },
         {
           category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-          threshold: HarmBlockThreshold.BLOCK_ONLY_HIGH,
+          threshold: HarmBlockThreshold.BLOCK_NONE,
         },
       ],
     });
