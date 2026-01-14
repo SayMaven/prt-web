@@ -1,70 +1,105 @@
-"use client"; 
+"use client";
 
+import { tools } from "@/lib/data"; // Pastikan import data tools kamu benar
 import Link from "next/link";
-import { tools } from "@/lib/data";
+import { useState } from "react";
 
 export default function ToolsGrid() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {tools.map((tool) => {
-        const isReady = tool.status === "Ready";
-        
-        return (
-          <Link 
-            key={tool.id} 
-            href={isReady ? tool.link : "#"}
-            className={`
-              group relative p-6 rounded-2xl border transition-all duration-300 flex flex-col h-full
-              ${isReady 
-                ? "bg-slate-900/50 border-slate-800 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10 hover:-translate-y-1 cursor-pointer" 
-                : "bg-slate-900/30 border-slate-800/50 opacity-60 cursor-not-allowed grayscale-[0.5]"
-              }
-            `}
-            // Mencegah klik jika status Coming Soon
-            aria-disabled={!isReady}
-            onClick={(e) => !isReady && e.preventDefault()}
-          >
-            
-            {/* Header Card: Icon & Status */}
-            <div className="flex items-start justify-between mb-6">
-              <div className={`
-                  p-3 rounded-xl text-3xl transition-transform duration-300 group-hover:scale-110
-                  ${isReady ? "bg-slate-950 border border-slate-800 shadow-sm" : "bg-slate-900"}
-              `}>
-                  {tool.icon}
-              </div>
+  const [query, setQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(8); // Tampilkan 8 dulu di awal
 
-              {/* Status Badge */}
-              {!isReady && (
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-slate-400 px-2 py-1 rounded border border-slate-700">
-                  Soon
+  // 1. Filter tools berdasarkan pencarian
+  const filteredTools = tools.filter((tool) =>
+    tool.title.toLowerCase().includes(query.toLowerCase()) ||
+    tool.description.toLowerCase().includes(query.toLowerCase())
+  );
+
+  // 2. Potong array sesuai jumlah yang ingin ditampilkan (Pagination)
+  const visibleTools = filteredTools.slice(0, visibleCount);
+
+  // Fungsi Load More
+  const showMore = () => {
+    setVisibleCount((prev) => prev + 8); // Tambah 8 lagi
+  };
+
+  return (
+    <div className="space-y-8">
+      
+      {/* --- SEARCH BAR --- */}
+      <div className="relative max-w-lg">
+        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+          <span className="text-slate-500">🔍</span>
+        </div>
+        <input
+          type="text"
+          placeholder="Cari tools..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full bg-slate-900 border border-slate-800 text-white text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 block pl-10 p-3 shadow-lg placeholder:text-slate-600 transition-all"
+        />
+      </div>
+
+      {/* --- GRID TOOLS --- */}
+      {visibleTools.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {visibleTools.map((tool) => (
+            <Link
+              href={tool.link}
+              key={tool.id}
+              className="group block p-6 bg-slate-900 border border-slate-800 rounded-2xl hover:border-blue-500/50 hover:bg-slate-800/50 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-blue-500/10"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-3xl filter drop-shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  {tool.icon}
                 </span>
-              )}
-              {isReady && (
-                 <span className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-500 text-xl font-bold">
-                   ↗
-                 </span>
-              )}
-            </div>
-            
-            {/* Content Card */}
-            <div>
-              <h3 className={`text-xl font-bold mb-2 transition-colors ${isReady ? "text-white group-hover:text-blue-400" : "text-slate-500"}`}>
-                  {tool.title}
-              </h3>
-              <p className="text-sm text-slate-300 leading-relaxed line-clamp-2">
+                
+                {/* Badge Status */}
+                {tool.status === "New" && (
+                  <span className="px-2 py-1 text-[10px] font-bold bg-green-500/20 text-green-400 rounded-full border border-green-500/30">
+                    NEW
+                  </span>
+                )}
+                {tool.status === "Hot" && (
+                  <span className="px-2 py-1 text-[10px] font-bold bg-orange-500/20 text-orange-400 rounded-full border border-orange-500/30">
+                    HOT
+                  </span>
+                )}
+                {tool.status === "Ultimate" && (
+                  <span className="px-2 py-1 text-[10px] font-bold bg-purple-500/20 text-purple-400 rounded-full border border-purple-500/30">
+                    PRO
+                  </span>
+                )}
+              </div>
+              
+              <h2 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                {tool.title}
+              </h2>
+              <p className="text-sm text-slate-400 line-clamp-2">
                 {tool.description}
               </p>
-            </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        // State jika tidak ada hasil pencarian
+        <div className="text-center py-10 border border-dashed border-slate-800 rounded-2xl bg-slate-900/50">
+          <p className="text-slate-500">Tool yang kamu cari tidak ditemukan 😔</p>
+        </div>
+      )}
 
-            {/* Hiasan Glow Biru */}
-            {isReady && (
-               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none"></div>
-            )}
+      {/* --- TOMBOL LOAD MORE --- */}
+      {/* Hanya muncul jika masih ada sisa tools yang belum tampil */}
+      {visibleCount < filteredTools.length && (
+        <div className="flex justify-center pt-4">
+          <button
+            onClick={showMore}
+            className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-all shadow-lg active:scale-95 text-sm"
+          >
+            Tampilkan Lebih Banyak ({filteredTools.length - visibleCount} lagi) ↓
+          </button>
+        </div>
+      )}
 
-          </Link>
-        );
-      })}
     </div>
   );
 }
