@@ -1,9 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar"; // 👈 Kita panggil Navbar baru di sini
+import Navbar from "@/components/Navbar"; 
+import ChatWidget from "@/components/ChatWidget";
 
 const inter = Inter({ subsets: ["latin"] });
+
+// 👇 FIX: Theme Color dipindah ke sini (Aturan Next.js Baru)
+export const viewport: Viewport = {
+  themeColor: '#0f172a',
+};
 
 export const metadata: Metadata = {
   title: {
@@ -11,7 +17,7 @@ export const metadata: Metadata = {
     default: 'SayMaven - Personal Portfolio & Tools',
   },
   description: "Portfolio Full Stack Developer dan kumpulan tools utilitas gratis.",
-  themeColor: '#0f172a',
+  // themeColor dihapus dari sini karena sudah dipindah ke atas
   openGraph: {
     title: 'SayMaven - Portfolio & Tools',
     description: 'Cek portfolio saya dan gunakan tools gratis seperti Password Generator di sini.',
@@ -33,7 +39,6 @@ export default function RootLayout({
       <body className={`${inter.className} min-h-screen flex flex-col bg-slate-950 text-slate-200 antialiased`}>
         
         {/* --- NAVBAR BARU (RESPONSIF) --- */}
-        {/* Tidak ada lagi kode header panjang di sini, semua ada di Navbar.tsx */}
         <Navbar />
 
         {/* --- KONTEN UTAMA --- */}
@@ -48,6 +53,8 @@ export default function RootLayout({
             <p>&copy; {new Date().getFullYear()} SayMaven. Dibangun dengan ❤️ for Maya</p>
           </div>
         </footer>
+
+        <ChatWidget />
 
       </body>
     </html>
