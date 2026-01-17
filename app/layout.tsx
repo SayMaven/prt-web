@@ -36,8 +36,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       {/* Set Background gelap (slate-950) agar sesuai tema */}
-      <body className={`${inter.className} min-h-screen flex flex-col bg-slate-950 text-slate-200 antialiased`}>
-        
+      <body className={`${inter.className} min-h-screen flex flex-col text-slate-200 antialiased relative`}>
+
         {/* --- NAVBAR BARU (RESPONSIF) --- */}
         <Navbar />
 

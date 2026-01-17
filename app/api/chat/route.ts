@@ -63,6 +63,7 @@ export async function POST(req: Request) {
       12. Typing Speed Test : Uji Kecepatan mengetik ala Monkeytype.
       13. Word Counter : Hitung jumlah kata, karakter, dan estimasi waktu baca dengan cepat.
       14. Password Generator : Buat Password acak yang kuat dan aman dengan kustomisasi karakter.
+      15. BPM Analyzer : Upload lagu dan sistem akan mendeteksi lagu secara otomatis
       
       PENGETAHUAN TENTANG DI WEB INI:
       - Di web ini juga ada gallery yang berisi illustrasi karakter bangdream Maya Yamato.

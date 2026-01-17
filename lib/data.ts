@@ -187,7 +187,16 @@ export const tools: Tool[] = [
     description: "Buat password acak yang kuat dan aman dengan kustomisasi karakter.",
     link: "/tools/password-gen", 
     icon: "🔐",
-    status: "New", // Tandai New
+    status: "Ready", // Tandai New
     category: "Utility"
+  },
+  {
+  id: 16, 
+  title: "BPM Analyzer",
+  description: "Upload lagu dan biarkan sistem mendeteksi BPM secara otomatis.",
+  icon: "🎧", 
+  link: "/tools/bpm-analyzer",
+  status: "New",
+  category: "Utility",
   },
 ];
