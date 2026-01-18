@@ -74,13 +74,14 @@ export const tools: Tool[] = [
     image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768587191/%E0%AD%A8%E0%AD%A7_maya_yamato_card_doye7r.jpg"
   },
   {
-    id: 3,
-    title: "Color Converter",
-    description: "Ubah Hex ke RGB dengan fitur color picker visual.",
-    icon: "🎨",
-    link: "/tools/color-converter",
-    status: "Ready",
-    category: "Design"
+  id: 3, 
+  title: "Maven Downloader",
+  description: "Download video dari berbagai situs populer dengan berbagai fitur.",
+  icon: "📺", 
+  link: "/tools/maven-downloader",
+  status: "Hot", 
+  category: "Utility",
+  image: "https://i.bandori.party/u/c/art/a/4951Maya-Yamato-Power-A-Moment-Of-Morning-Sunlight-Ofcqtv.png"
   },
   {
     id: 4,
@@ -197,6 +198,16 @@ export const tools: Tool[] = [
   icon: "🎧", 
   link: "/tools/bpm-analyzer",
   status: "New",
-  category: "Utility",
+  category: "Utility"
   },
+  {
+    id: 17,
+    title: "Color Converter",
+    description: "Ubah Hex ke RGB dengan fitur color picker visual.",
+    icon: "🎨",
+    link: "/tools/color-converter",
+    status: "Ready",
+    category: "Design"
+  },
+  
 ];
