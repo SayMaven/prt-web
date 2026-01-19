@@ -84,13 +84,13 @@ export const tools: Tool[] = [
   image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768794809/4951Maya-Yamato-Power-A-Moment-Of-Morning-Sunlight-Ofcqtv_nnr9lz.png"
   },
   {
-    id: 4,
-    title: "Pomodoro Timer",
-    description: "Timer fokus sederhana dengan metode 25/5 menit.",
-    icon: "⏱️",
-    link: "/tools/pomodoro",
-    status: "Ready",
-    category: "Productivity"
+  id: 4,
+  title: "Cek Cuaca",
+  description: "Lihat suhu, kondisi, dan kelembaban udara di kotamu.",
+  icon: "🌤️", 
+  link: "/tools/weather",
+  status: "New",
+  category: "Utility",
   },
   {
     id: 5,
@@ -217,5 +217,14 @@ export const tools: Tool[] = [
   link: "/tools/ip-checker",
   status: "New",
   category: "Utility",
+  },
+  {
+    id: 19,
+    title: "Pomodoro Timer",
+    description: "Timer fokus sederhana dengan metode 25/5 menit.",
+    icon: "⏱️",
+    link: "/tools/pomodoro",
+    status: "Ready",
+    category: "Productivity"
   },
 ];
