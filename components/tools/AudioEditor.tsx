@@ -21,8 +21,6 @@ export default function AudioEditor() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const editorWrapperRef = useRef<HTMLDivElement>(null);
-  
-  // REF PENTING UNTUK LOOPING (Agar tidak bug)
   const isLoopingRef = useRef(false);
 
   // --- STATE ---
@@ -36,18 +34,21 @@ export default function AudioEditor() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [zoom, setZoom] = useState(50);
-  const [isLooping, setIsLooping] = useState(false); // State untuk UI
+  const [isLooping, setIsLooping] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Drag & Drop Visual State
+  const [isDragging, setIsDragging] = useState(false);
 
   // Modal Params
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [effectParams, setEffectParams] = useState<any>({});
 
+  // History Hook
   const { state: currentUrl, pushState, undo, redo, canUndo, canRedo, resetHistory } = useHistory<string | null>(null);
 
-  // --- 1. HANDLE CLICK OUTSIDE ---
+  // --- 1. HANDLE CLICK OUTSIDE & LOOP REF ---
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -58,13 +59,9 @@ export default function AudioEditor() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // --- 2. SYNC LOOP STATE KE REF ---
-  // Setiap kali tombol loop ditekan, update ref-nya juga
-  useEffect(() => {
-      isLoopingRef.current = isLooping;
-  }, [isLooping]);
+  useEffect(() => { isLoopingRef.current = isLooping; }, [isLooping]);
 
-  // --- 3. INITIALIZATION ---
+  // --- 2. INITIALIZATION ---
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (!containerRef.current || !timelineRef.current) return;
@@ -107,23 +104,19 @@ export default function AudioEditor() {
 
     setWsRegions(regions);
 
-    // EVENTS
     ws.on("play", () => setIsPlaying(true));
     ws.on("pause", () => setIsPlaying(false));
     ws.on("timeupdate", (time) => setCurrentTime(time));
-    
     ws.on("decode", () => {
         setDuration(ws.getDuration());
         regions.clearRegions();
     });
-
-    // --- FIX UTAMA BUG LOOP ---
-    // Menggunakan isLoopingRef.current (selalu fresh) bukan state isLooping (bisa stale)
+    
+    // Fix Loop Bug
     ws.on("finish", () => {
         if (isLoopingRef.current) {
-            // Reset ke awal dan play lagi secara eksplisit
             ws.seekTo(0);
-            ws.play(); 
+            ws.play();
         } else {
             setIsPlaying(false);
         }
@@ -136,9 +129,17 @@ export default function AudioEditor() {
     if(editorWrapperRef.current) editorWrapperRef.current.focus();
 
     return () => ws.destroy();
-  }, []); // Dependency array kosong agar ws tidak di-reinit terus menerus
+  }, []);
 
   // --- LOGIC FUNCTIONS ---
+
+  const loadAudioFile = (file: File) => {
+      if (!wavesurfer) return;
+      setFile(file);
+      const url = URL.createObjectURL(file);
+      wavesurfer.load(url);
+      resetHistory(url);
+  };
 
   const loadNewBuffer = (newBuffer: AudioBuffer) => {
     if (!wavesurfer) return;
@@ -161,6 +162,43 @@ export default function AudioEditor() {
       wavesurfer.zoom(safeZoom);
       setActiveMenu(null);
   };
+
+  // --- DRAG & DROP HANDLERS (FIXED) ---
+  const handleDragOver = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+          const droppedFile = e.dataTransfer.files[0];
+          // Cek tipe file (Audio only)
+          if (droppedFile.type.startsWith('audio/')) {
+              loadAudioFile(droppedFile);
+          } else {
+              alert("Please drop a valid audio file.");
+          }
+      }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const f = e.target.files?.[0];
+      if (f) loadAudioFile(f);
+      setActiveMenu(null);
+  };
+
+  // --- EFFECT HANDLERS ---
 
   const openEffectModal = (type: ModalType) => {
       if (!file) return alert("Load audio first!");
@@ -221,6 +259,7 @@ export default function AudioEditor() {
       }, 50);
   };
 
+  // --- OTHER HANDLERS ---
   const handleTimelineClick = (e: React.MouseEvent<HTMLDivElement>) => {
       if(!wavesurfer || !duration) return;
       const rect = e.currentTarget.getBoundingClientRect();
@@ -229,21 +268,9 @@ export default function AudioEditor() {
       wavesurfer.seekTo(p);
   };
 
-  // --- UI ACTIONS ---
   const handleUndo = () => { const prev = undo(); if(prev && wavesurfer) wavesurfer.load(prev); setActiveMenu(null); };
   const handleRedo = () => { const next = redo(); if(next && wavesurfer) wavesurfer.load(next); setActiveMenu(null); };
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const f = e.target.files?.[0];
-      if (f && wavesurfer) {
-          setFile(f);
-          const url = URL.createObjectURL(f);
-          wavesurfer.load(url);
-          resetHistory(url);
-      }
-      setActiveMenu(null);
-  };
-
   const handleSave = async () => {
       if(!wavesurfer || !file) return;
       const buffer = wavesurfer.getDecodedData();
@@ -305,7 +332,7 @@ export default function AudioEditor() {
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [wavesurfer, wsRegions, isRecording, canUndo, canRedo, currentUrl, zoom]);
+  }, [wavesurfer, wsRegions, canUndo, canRedo, currentUrl, zoom]);
 
   // --- RENDERERS ---
   const renderSlider = (label: string, key: string, min: number, max: number, step: number, suffix: string = "") => (
@@ -327,8 +354,23 @@ export default function AudioEditor() {
     <div 
         ref={editorWrapperRef}
         tabIndex={0}
-        className="max-w-6xl mx-auto bg-[#1e1e1e] border border-slate-800 rounded-lg shadow-2xl overflow-hidden min-h-[550px] select-none relative outline-none focus:ring-1 focus:ring-blue-500/50"
+        // HANDLER DRAG & DROP UTAMA DI SINI
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`max-w-6xl mx-auto bg-[#1e1e1e] border rounded-lg shadow-2xl overflow-hidden min-h-[550px] select-none relative outline-none focus:ring-1 focus:ring-blue-500/50 
+            ${isDragging ? 'border-blue-500 ring-2 ring-blue-500/50' : 'border-slate-800'}`}
     >
+      {/* VISUAL OVERLAY SAAT DRAG */}
+      {isDragging && (
+          <div className="absolute inset-0 z-[60] bg-blue-600/20 backdrop-blur-sm flex items-center justify-center border-4 border-dashed border-blue-500 pointer-events-none">
+              <div className="bg-[#1e1e1e] p-6 rounded-xl shadow-2xl text-center">
+                  <div className="text-4xl mb-2">📂</div>
+                  <h3 className="text-xl font-bold text-white">Drop Audio File Here</h3>
+              </div>
+          </div>
+      )}
+
       {isProcessing && (
           <div className="absolute inset-0 z-[100] flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm cursor-wait">
               <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
