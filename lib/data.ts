@@ -9,7 +9,7 @@ export type Tool = {
   icon: string;
   status: "Ready" | "New" | "Hot" | "Ultimate";
   // 👇 Tambahkan tipe Category di sini
-  category: "Anime" | "Dev" | "Design" | "Productivity" | "Utility";
+  category: "Anime" | "Dev" | "Design" | "Productivity" | "Utility" | "Media";
   image?: string;
 };
 
@@ -111,13 +111,13 @@ export const tools: Tool[] = [
     category: "Dev"
   },
   {
-    id: 7,
-    title: "JSON Formatter",
-    description: "Validasi dan rapikan kode JSON yang berantakan.",
-    icon: "📋",
-    link: "/tools/json-formatter",
-    status: "Ready",
-    category: "Dev"
+  id: 7,
+  title: "Audio Editor & Visualizer",
+  description: "Visualisasi waveform dan pemutar audio offline berbasis browser.",
+  icon: "🎧", 
+  link: "/tools/audio-editor",
+  status: "New",
+  category: "Media", 
   },
   {
     id: 8, 
@@ -226,5 +226,14 @@ export const tools: Tool[] = [
     link: "/tools/pomodoro",
     status: "Ready",
     category: "Productivity"
+  },
+  {
+    id: 20,
+    title: "JSON Formatter",
+    description: "Validasi dan rapikan kode JSON yang berantakan.",
+    icon: "📋",
+    link: "/tools/json-formatter",
+    status: "Ready",
+    category: "Dev"
   },
 ];
