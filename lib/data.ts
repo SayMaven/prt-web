@@ -81,7 +81,7 @@ export const tools: Tool[] = [
   link: "/tools/maven-downloader",
   status: "Hot", 
   category: "Utility",
-  image: "https://i.bandori.party/u/c/art/a/4951Maya-Yamato-Power-A-Moment-Of-Morning-Sunlight-Ofcqtv.png"
+  image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768794809/4951Maya-Yamato-Power-A-Moment-Of-Morning-Sunlight-Ofcqtv_nnr9lz.png"
   },
   {
     id: 4,
@@ -197,7 +197,7 @@ export const tools: Tool[] = [
   description: "Upload lagu dan biarkan sistem mendeteksi BPM secara otomatis.",
   icon: "🎧", 
   link: "/tools/bpm-analyzer",
-  status: "New",
+  status: "Ready",
   category: "Utility"
   },
   {
@@ -209,5 +209,13 @@ export const tools: Tool[] = [
     status: "Ready",
     category: "Design"
   },
-  
+  {
+  id: 18,
+  title: "Cek IP & Lokasi",
+  description: "Lihat IP Address publik, ISP, dan lokasi server internetmu.",
+  icon: "🌍", 
+  link: "/tools/ip-checker",
+  status: "New",
+  category: "Utility",
+  },
 ];
