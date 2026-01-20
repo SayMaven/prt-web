@@ -105,6 +105,7 @@ export default function Home() {
                  <span className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 border border-slate-700">Next.js</span>
                  <span className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 border border-slate-700">TypeScript</span>
                  <span className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 border border-slate-700">Tailwind</span>
+                 <span className="px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 border border-slate-700">React</span>
              </div>
         </div>
 
