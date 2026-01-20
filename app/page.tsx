@@ -13,8 +13,8 @@ export default function Home() {
           <span className="text-pink-400">For Even Now</span>
         </h1>
         <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
-          Halo, Saya <b>Abil Ar Rasyid</b>. Seorang Fullstack Developer, Illustrator, dan Mahasiswa. 
-          Selamat datang di ruang digital tempat logika bertemu estetika. Maya Yamato adalah Waifu saya.
+          Halo, Saya <b>Abil Ar Rasyid</b>. Seorang Fullstack Developer, Illustrator, Komposer, Teknisi dan Mahasiswa. 
+          Selamat datang di ruang digital tempat logika bertemu estetika. Desain website ini terinspirasi dari karakter Bang Dream Series, Maya Yamato.
         </p>
       </section>
       

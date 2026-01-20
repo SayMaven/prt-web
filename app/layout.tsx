@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar"; 
 import ChatWidget from "@/components/ChatWidget";
-import VisitorCounter from "@/components/VisitorCounter"; // 1. Import komponen
+import VisitorCounter from "@/components/VisitorCounter";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -37,11 +37,8 @@ export default function RootLayout({
       {/* Menambahkan bg-slate-950 agar background gelap konsisten */}
       <body className={`${inter.className} min-h-screen flex flex-col text-slate-200 antialiased relative bg-slate-950`}>
 
-        {/* --- VISITOR COUNTER (GLOBAL) --- */}
-        {/* Posisi Fixed di pojok kanan atas, z-index tinggi agar di atas Navbar */}
-        {/* 'hidden md:block' opsional: jika ingin disembunyikan di HP agar tidak menuhin layar */}
-        <div className="fixed top-4 right-4 z-[100]"> 
-           <VisitorCounter />
+        <div className="fixed z-[100] top-5 right-20 md:top-auto md:right-auto md:bottom-7 md:left-14"> 
+          <VisitorCounter />
         </div>
 
         {/* --- NAVBAR --- */}
