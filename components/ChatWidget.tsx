@@ -143,7 +143,7 @@ export default function ChatWidget() {
         {isOpen ? (
           <span className="text-2xl text-white font-bold">✕</span>
         ) : (
-          <span className="text-2xl text-white">💬</span>
+          <span className="text-2xl text-white">🗪</span>
         )}
         
         {/* Notif Badge (Hiasan) */}

@@ -67,7 +67,7 @@ export const tools: Tool[] = [
     id: 2,
     title: "Anime Finder",
     description: "Database pencarian anime super lengkap (Genre, Year, Score, dll).",
-    icon: "🔍", 
+    icon: "", 
     link: "/tools/anime-explorer",
     status: "Ultimate", // Ubah jadi Ultimate biar keren
     category: "Anime",
@@ -77,7 +77,7 @@ export const tools: Tool[] = [
   id: 3, 
   title: "Maven Downloader",
   description: "Download video dari berbagai situs populer dengan berbagai fitur.",
-  icon: "📺", 
+  icon: "", 
   link: "/tools/maven-downloader",
   status: "Hot", 
   category: "Utility",
@@ -93,22 +93,23 @@ export const tools: Tool[] = [
   category: "Utility",
   },
   {
-    id: 5,
-    title: "Aspect Ratio Calc",
-    description: "Hitung skala resolusi layar (misal 1920x1080 = 16:9).",
-    icon: "📐",
-    link: "/tools/aspect-ratio",
-    status: "Ready",
-    category: "Design"
+  id: 5,
+  title: "Background Remover",
+  description: "Hapus latar belakang foto otomatis dengan AI.",
+  icon: "",
+  link: "/tools/bg-remover",
+  status: "New",
+  category: "Design",
+  image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768925528/5109Maya-Yamato-Power-Precise-and-Brilliant-Judgment-pyCiAk_awf3nv.png"
   },
   {
-    id: 6,
-    title: "QR Code Gen",
-    description: "Ubah link/teks jadi gambar QR Code siap scan.",
-    icon: "📱",
-    link: "/tools/qr-code",
-    status: "Ready",
-    category: "Dev"
+  id: 6,
+  title: "QR Code Gen",
+  description: "Ubah link/teks jadi gambar QR Code siap scan.",
+  icon: "📱",
+  link: "/tools/qr-code",
+  status: "Ready",
+  category: "Dev"
   },
   {
   id: 7,
@@ -235,5 +236,14 @@ export const tools: Tool[] = [
     link: "/tools/json-formatter",
     status: "Ready",
     category: "Dev"
+  },
+  {
+    id: 21,
+    title: "Aspect Ratio Calc",
+    description: "Hitung skala resolusi layar (misal 1920x1080 = 16:9).",
+    icon: "📐",
+    link: "/tools/aspect-ratio",
+    status: "Ready",
+    category: "Design"
   },
 ];
