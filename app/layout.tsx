@@ -17,6 +17,15 @@ export const metadata: Metadata = {
     default: 'SayMaven - Personal Portfolio & Tools',
   },
   description: "Portfolio Full Stack Developer dan kumpulan tools utilitas gratis.",
+  icons: {
+    icon: [
+      { url: '/favicon.ico' }, // Pastikan file favicon.ico ada di folder public
+      { url: '/logo.png', type: 'image/png' }, // Pastikan file icon.png ada di folder public
+    ],
+    apple: [
+      { url: '/apple-icon.png' }, // Opsional: untuk icon di iPhone/iPad
+    ],
+  },
   openGraph: {
     title: 'SayMaven - Portfolio & Tools',
     description: 'Cek portfolio saya dan gunakan tools gratis seperti Password Generator di sini.',
