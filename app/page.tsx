@@ -1,6 +1,6 @@
 import { tools } from "@/lib/data";
 import Link from "next/link";
-import HomeGalleryWidget from "@/components/HomeGalleryWidget"; // Widget Slideshow tadi
+import HomeGalleryWidget from "@/components/HomeGalleryWidget";
 
 export default function Home() {
   return (
@@ -17,7 +17,7 @@ export default function Home() {
           Selamat datang di ruang digital tempat logika bertemu estetika. Maya Yamato adalah Waifu saya.
         </p>
       </section>
-
+      
       {/* --- BENTO GRID LAYOUT --- */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[minmax(180px,auto)]">
         
@@ -39,7 +39,7 @@ export default function Home() {
              </Link>
           </div>
         </div>
-
+        
         {/* 2. GALLERY PREVIEW (Lebar: 1 kolom) - Pakai Widget Slideshow */}
         <div className="md:col-span-1 h-64 md:h-auto bg-slate-900/50 rounded-2xl border border-slate-800 p-1 relative group hover:border-blue-500/50 transition-colors">
             {/* Widget Slideshow dipanggil di sini */}

@@ -3,10 +3,10 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar"; 
 import ChatWidget from "@/components/ChatWidget";
+import VisitorCounter from "@/components/VisitorCounter"; // 1. Import komponen
 
 const inter = Inter({ subsets: ["latin"] });
 
-// 👇 FIX: Theme Color dipindah ke sini (Aturan Next.js Baru)
 export const viewport: Viewport = {
   themeColor: '#0f172a',
 };
@@ -17,7 +17,6 @@ export const metadata: Metadata = {
     default: 'SayMaven - Personal Portfolio & Tools',
   },
   description: "Portfolio Full Stack Developer dan kumpulan tools utilitas gratis.",
-  // themeColor dihapus dari sini karena sudah dipindah ke atas
   openGraph: {
     title: 'SayMaven - Portfolio & Tools',
     description: 'Cek portfolio saya dan gunakan tools gratis seperti Password Generator di sini.',
@@ -35,14 +34,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      {/* Set Background gelap (slate-950) agar sesuai tema */}
-      <body className={`${inter.className} min-h-screen flex flex-col text-slate-200 antialiased relative`}>
+      {/* Menambahkan bg-slate-950 agar background gelap konsisten */}
+      <body className={`${inter.className} min-h-screen flex flex-col text-slate-200 antialiased relative bg-slate-950`}>
 
-        {/* --- NAVBAR BARU (RESPONSIF) --- */}
+        {/* --- VISITOR COUNTER (GLOBAL) --- */}
+        {/* Posisi Fixed di pojok kanan atas, z-index tinggi agar di atas Navbar */}
+        {/* 'hidden md:block' opsional: jika ingin disembunyikan di HP agar tidak menuhin layar */}
+        <div className="fixed top-4 right-4 z-[100]"> 
+           <VisitorCounter />
+        </div>
+
+        {/* --- NAVBAR --- */}
         <Navbar />
 
         {/* --- KONTEN UTAMA --- */}
-        {/* pt-20 ditambahkan supaya konten tidak tertutup Navbar yang posisinya Fixed */}
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 pt-24">
           {children}
         </main>
@@ -54,6 +59,7 @@ export default function RootLayout({
           </div>
         </footer>
 
+        {/* --- WIDGET LAINNYA --- */}
         <ChatWidget />
 
       </body>
