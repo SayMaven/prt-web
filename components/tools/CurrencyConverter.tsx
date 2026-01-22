@@ -3,28 +3,25 @@
 import { useState, useEffect } from "react";
 
 export default function CurrencyConverter() {
-  const [amount, setAmount] = useState<number>(1);
+  // 1. UPDATE: Izinkan state berupa number ATAU string kosong
+  const [amount, setAmount] = useState<number | string>(1);
   const [fromCurrency, setFromCurrency] = useState("USD");
   const [toCurrency, setToCurrency] = useState("IDR");
   const [rate, setRate] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const [lastUpdate, setLastUpdate] = useState("");
 
-  // Daftar Mata Uang Populer
   const currencies = [
-    "USD", "IDR", "EUR", "GBP", "JPY", "SGD", "MYR", "AUD", "CNY", "KRW"
+    "USD", "IDR", "EUR", "GBP", "JPY", "SGD", "MYR", "AUD", "CNY", "KRW", "CHF", "INR", "CAD"
   ];
 
-  // Fungsi Fetch Data dari API
   useEffect(() => {
     const fetchRates = async () => {
       setLoading(true);
       try {
-        // Kita ambil data berdasarkan 'fromCurrency'
         const res = await fetch(`https://api.exchangerate-api.com/v4/latest/${fromCurrency}`);
         const data = await res.json();
         
-        // Ambil nilai tukar untuk 'toCurrency'
         const newRate = data.rates[toCurrency];
         setRate(newRate);
         setLastUpdate(data.date);
@@ -37,9 +34,8 @@ export default function CurrencyConverter() {
     };
 
     fetchRates();
-  }, [fromCurrency, toCurrency]); // Jalankan ulang jika mata uang berubah
+  }, [fromCurrency, toCurrency]);
 
-  // Fungsi Tukar Posisi (Swap)
   const handleSwap = () => {
     setFromCurrency(toCurrency);
     setToCurrency(fromCurrency);
@@ -48,7 +44,6 @@ export default function CurrencyConverter() {
   return (
     <div className="max-w-xl mx-auto p-8 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm shadow-2xl">
       
-      {/* Header Status */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-2">
             <span className="relative flex h-3 w-3">
@@ -60,7 +55,6 @@ export default function CurrencyConverter() {
         <span className="text-xs text-slate-500">Update: {lastUpdate}</span>
       </div>
 
-      {/* Area Input */}
       <div className="space-y-4 relative">
         
         {/* Input Dari (From) */}
@@ -70,8 +64,19 @@ export default function CurrencyConverter() {
                 <input 
                     type="number" 
                     value={amount}
-                    onChange={(e) => setAmount(Number(e.target.value))}
-                    className="bg-transparent text-2xl font-bold text-white w-full outline-none"
+                    placeholder="0" // Placeholder muncul saat state kosong
+                    // 2. UPDATE: Logic onChange agar tidak memaksa jadi 0
+                    onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "") {
+                            setAmount(""); // Set string kosong agar input bersih
+                        } else {
+                            // Convert ke number, tapi jangan parse jika user ngetik "0." (desimal)
+                            // Cara paling aman untuk UX angka adalah simpan value as is atau cast parseFloat
+                            setAmount(Number(val));
+                        }
+                    }}
+                    className="bg-transparent text-2xl font-bold text-white w-full outline-none placeholder:text-slate-600"
                 />
             </div>
             <select 
@@ -83,7 +88,6 @@ export default function CurrencyConverter() {
             </select>
         </div>
 
-        {/* Tombol Swap (Di Tengah) */}
         <div className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 top-1/2 z-10">
             <button 
                 onClick={handleSwap}
@@ -93,12 +97,13 @@ export default function CurrencyConverter() {
             </button>
         </div>
 
-        {/* Input Ke (To) - Read Only */}
+        {/* Input Ke (To) */}
         <div className="bg-slate-900/50 p-4 rounded-xl border border-slate-700 flex items-center gap-4">
             <div className="flex-1">
                 <label className="text-xs text-slate-400 block mb-1">Dikonversi ke</label>
                 <div className="text-2xl font-bold text-blue-400 w-full overflow-hidden text-ellipsis">
-                    {loading ? "Loading..." : (amount * rate).toLocaleString("id-ID")}
+                    {/* 3. UPDATE: Pastikan amount di-convert ke Number() sebelum dikali */}
+                    {loading ? "Loading..." : (Number(amount) * rate).toLocaleString("id-ID")}
                 </div>
             </div>
             <select 
@@ -112,7 +117,6 @@ export default function CurrencyConverter() {
 
       </div>
 
-      {/* Info Rate */}
       <div className="mt-6 text-center">
         <p className="text-sm text-slate-400">
             Nilai Tukar Saat Ini: <br/>

@@ -12,7 +12,7 @@ export default function CurrencyPage() {
       <div className="mb-10 text-center">
         <h1 className="text-3xl font-bold text-white mb-2">Currency Converter</h1>
         <p className="text-emerald-500">
-          Cek nilai tukar mata uang dunia secara Real-Time (Live API).
+          Cek nilai tukar mata uang dunia secara Real-Time
         </p>
       </div>
       
