@@ -1,39 +1,47 @@
 import type { Metadata } from "next";
 import GalleryGrid from "@/components/GalleryGrid"; 
+import { getGalleryImages } from "@/lib/cloudinary"; // Import fungsi fetcher
 
 export const metadata: Metadata = {
   title: "Waifu Gallery | SayMaven",
   description: "Koleksi waifu original dan fanart.",
 };
 
-export default function GalleryPage() {
+// Agar data di-refresh tiap 60 detik (ISR)
+export const revalidate = 60; 
+
+export default async function GalleryPage() {
+  // 1. AMBIL DATA DARI CLOUDINARY
+  // Ganti 'portfolio' dengan nama FOLDER di Cloudinary kamu
+  // Jika gambarmu tidak di dalam folder (di root), kosongkan atau hapus logic folder di lib/cloudinary
+  const images = await getGalleryImages(['Yamato Maya', 'Hatsune Miku']);
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
       
-      {/* Header Halaman */}
+      {/* Header Halaman (TETAP SAMA) */}
       <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
         <h1 className="text-4xl font-bold text-white mb-4 flex items-center justify-center gap-4">
-            {/* Teks Judul */}
             <span>Gallery Maya Yamato</span>
-
-            {/* Gambar Signature */}
-            {/* GANTI '/signature.png' dengan link/path gambarmu */}
             <img
-            src="https://static.wikia.nocookie.net/bandori/images/8/8a/Yamato_Maya_Signature.png"
+            src="https://static.wikia.nocookie.net/bandori/images/a/a8/Maya_charaImage.png"
             alt="Signature My Bini Maya Yamato"
-            // Class untuk mengatur ukuran dan agar warnanya agak menyatu (opsional: opacity/invert)
             className="h-12 w-auto object-contain opacity-90"
             />
         </h1>
         <p className="text-slate-300 max-w-2xl mx-auto">
           Arsip Waifu. Dilarang mengklaim waifu secara sepihak ( Punya Gweh ).
+          <br/>
+          <span className="text-xl text-blue-300 mt-2 block">
+            Menampilkan {images.length} gambar dari Database.
+          </span>
         </p>
       </div>
 
-      {/* Panggil Client Component di sini */}
-      <GalleryGrid />
+      {/* Panggil Client Component dengan Props Images */}
+      <GalleryGrid images={images} />
 
-      {/* Footer Link ke Pixiv */}
+      {/* Footer Link ke Pixiv (TETAP SAMA) */}
       <div className="mt-16 text-center">
         <p className="text-blue-500 text-sm mb-4">Btw ini akun pixiv saya ( Khusus Wip ).</p>
         <a 
