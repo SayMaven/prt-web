@@ -246,4 +246,13 @@ export const tools: Tool[] = [
     status: "Ready",
     category: "Design"
   },
+  {
+    id: 22,
+    title: "PDF Merger",
+    description: "Gabungkan banyak file PDF menjadi satu dokumen urutan yang bisa diatur (100% Client-side).",
+    icon: "📑", 
+    link: "/tools/pdf-merger",
+    status: "New",
+    category: "Productivity"
+  }
 ];
