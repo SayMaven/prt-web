@@ -1,6 +1,6 @@
 // lib/data.ts
 
-// 1. Kita buat Interface biar TypeScript tidak bingung
+// Interface 
 export type Tool = {
   id: number;
   title: string;
@@ -8,7 +8,7 @@ export type Tool = {
   link: string;
   icon: string;
   status: "Ready" | "New" | "Hot" | "Ultimate";
-  // 👇 Tambahkan tipe Category di sini
+  //  tipe Category
   category: "Anime" | "Dev" | "Design" | "Productivity" | "Utility" | "Media";
   image?: string;
 };
@@ -52,7 +52,7 @@ export const projects = [
   }
 ];
 
-// 👇 DATA TOOLS YANG SUDAH DIKATEGORIKAN
+// DATA TOOLS
 export const tools: Tool[] = [
   {
     id: 1,
@@ -61,7 +61,7 @@ export const tools: Tool[] = [
     icon: "⛩️", 
     link: "/tools/anime-schedule",
     status: "Ready",
-    category: "Anime" // 👈 Kategori Baru
+    category: "Anime"
   },
   {
     id: 2,
@@ -69,12 +69,21 @@ export const tools: Tool[] = [
     description: "Database pencarian anime super lengkap (Genre, Year, Score, dll).",
     icon: "", 
     link: "/tools/anime-explorer",
-    status: "Ultimate", // Ubah jadi Ultimate biar keren
+    status: "Ultimate", 
     category: "Anime",
     image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768587191/%E0%AD%A8%E0%AD%A7_maya_yamato_card_doye7r.jpg"
   },
   {
-  id: 3, 
+    id: 3,
+    title: "What Anime Is This?",
+    description: "Cari judul anime, episode, dan menit keberapa hanya dari screenshot adegan.",
+    icon: "🧐",
+    link: "/tools/anime-search",
+    status: "Ultimate",
+    category: "Anime"
+  },
+  {
+  id: 4, 
   title: "Maven Downloader",
   description: "Download video dari berbagai situs populer dengan berbagai fitur.",
   icon: "", 
@@ -84,7 +93,7 @@ export const tools: Tool[] = [
   image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768794809/4951Maya-Yamato-Power-A-Moment-Of-Morning-Sunlight-Ofcqtv_nnr9lz.png"
   },
   {
-  id: 4,
+  id: 5,
   title: "Cek Cuaca",
   description: "Lihat suhu, kondisi, dan kelembaban udara di kotamu.",
   icon: "🌤️", 
@@ -93,7 +102,7 @@ export const tools: Tool[] = [
   category: "Utility",
   },
   {
-  id: 5,
+  id: 6,
   title: "Background Remover",
   description: "Hapus latar belakang foto otomatis dengan AI.",
   icon: "",
@@ -103,7 +112,7 @@ export const tools: Tool[] = [
   image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768925528/5109Maya-Yamato-Power-Precise-and-Brilliant-Judgment-pyCiAk_awf3nv.png"
   },
   {
-  id: 6,
+  id: 7,
   title: "QR Code Gen",
   description: "Ubah link/teks jadi gambar QR Code siap scan.",
   icon: "📱",
@@ -112,7 +121,7 @@ export const tools: Tool[] = [
   category: "Dev"
   },
   {
-  id: 7,
+  id: 8,
   title: "Audio Editor & Visualizer",
   description: "Visualisasi waveform dan pemutar audio offline berbasis browser.",
   icon: "🎧", 
@@ -121,7 +130,7 @@ export const tools: Tool[] = [
   category: "Media", 
   },
   {
-    id: 8, 
+    id: 9, 
     title: "Currency Converter",
     description: "Konversi mata uang asing dengan Live API Data.",
     icon: "💱",
@@ -130,7 +139,7 @@ export const tools: Tool[] = [
     category: "Utility"
   },
   {
-    id: 9,
+    id: 10,
     title: "Image Compressor",
     description: "Kecilkan ukuran gambar JPG/PNG di browser.",
     icon: "🖼️",
@@ -139,7 +148,7 @@ export const tools: Tool[] = [
     category: "Design"
   },
   {
-    id: 10,
+    id: 11,
     title: "GitHub Finder",
     description: "Cari profil GitHub & lihat repository terbaru.",
     icon: "🐱",
@@ -148,22 +157,13 @@ export const tools: Tool[] = [
     category: "Dev"
   },
   {
-    id: 11,
+    id: 12,
     title: "Typing Speed Test",
     description: "Uji kecepatan mengetik (WPM) ala Monkeytype.",
     icon: "⌨️",
     link: "/tools/typing-test",
     status: "Ready",
     category: "Productivity"
-  },
-  {
-    id: 12,
-    title: "Random Picker",
-    description: "Alat pengacak pilihan. Cocok buat yang susah ambil keputusan (Gacha style).",
-    icon: "🎲", 
-    link: "/tools/random-picker",
-    status: "Ready",
-    category: "Utility"
   },
   {
     id: 13,
@@ -254,5 +254,14 @@ export const tools: Tool[] = [
     link: "/tools/pdf-merger",
     status: "New",
     category: "Productivity"
-  }
+  },
+  {
+    id: 23,
+    title: "Random Picker",
+    description: "Alat pengacak pilihan. Cocok buat yang susah ambil keputusan (Gacha style).",
+    icon: "🎲", 
+    link: "/tools/random-picker",
+    status: "Ready",
+    category: "Utility"
+  },
 ];
