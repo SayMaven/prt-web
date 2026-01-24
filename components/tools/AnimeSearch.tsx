@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { Upload, Search, X, Play, Clock, AlertCircle, Film, Link, Info, BookOpen, Calendar, Tv } from "lucide-react";
+import { useState, useCallback, useRef } from "react";
+import { Upload, Search, X, Play, Clock, AlertCircle, Film, Link, Info, BookOpen, Calendar, Volume2, VolumeX } from "lucide-react";
 
-// Tipe Data Hasil Akhir (Gabungan Trace.moe + AniList GraphQL)
+// Tipe Data Hasil Akhir
 type AnimeResult = {
   anilist: {
     id: number;
@@ -14,7 +14,6 @@ type AnimeResult = {
     };
     synonyms: string[];
     isAdult: boolean;
-    // Data Tambahan dari GraphQL
     description?: string; 
     coverImage?: {        
         large: string;
@@ -25,8 +24,8 @@ type AnimeResult = {
         nodes: { name: string }[];
     };
     siteUrl?: string;
-    seasonYear?: number; // Tahun Season (misal: 2024)
-    startDate?: { year: number }; // Backup Tahun Rilis
+    seasonYear?: number;
+    startDate?: { year: number };
     episodes?: number;
     format?: string;
   };
@@ -39,6 +38,53 @@ type AnimeResult = {
   image: string;
 };
 
+// --- SUB-COMPONENT: VIDEO PREVIEW ---
+// Dipisah agar setiap video punya state mute/ref sendiri
+const VideoPreview = ({ url, similarityColor, similarityPercent }: { url: string, similarityColor: string, similarityPercent: string }) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [isMuted, setIsMuted] = useState(true);
+
+    const toggleMute = () => {
+        if (videoRef.current) {
+            // Toggle properti muted pada elemen video asli
+            videoRef.current.muted = !videoRef.current.muted;
+            // Update state icon
+            setIsMuted(videoRef.current.muted);
+        }
+    };
+
+    return (
+        <div className="w-full lg:w-1/3 aspect-video bg-black relative shrink-0 group">
+            <video 
+                ref={videoRef}
+                src={url} 
+                autoPlay    // Otomatis putar
+                loop        // Otomatis ulang
+                muted       // Wajib mute diawal agar autoplay jalan di browser
+                playsInline // Agar tidak fullscreen otomatis di mobile
+                className="w-full h-full object-contain"
+            />
+            
+            {/* Badge Similarity */}
+            <div className={`absolute top-2 left-2 bg-black/80 ${similarityColor} text-xs font-mono px-2 py-1 rounded border shadow-lg z-10 pointer-events-none`}>
+                {similarityPercent}% Match
+            </div>
+
+            {/* Custom Volume Button */}
+            <button 
+                onClick={(e) => {
+                    e.stopPropagation();
+                    toggleMute();
+                }}
+                className="absolute bottom-3 right-3 bg-black/60 hover:bg-blue-600 text-white p-2 rounded-full backdrop-blur-sm transition-all border border-white/10 z-20 shadow-lg"
+                title={isMuted ? "Unmute" : "Mute"}
+            >
+                {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            </button>
+        </div>
+    );
+};
+
 export default function AnimeSearch() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imageUrl, setImageUrl] = useState("");
@@ -48,7 +94,6 @@ export default function AnimeSearch() {
   const [error, setError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
 
-  // --- HELPER: Strip HTML Tags ---
   const stripHtml = (html: string) => {
     const doc = new DOMParser().parseFromString(html, "text/html");
     return doc.body.textContent || "";
@@ -117,7 +162,6 @@ export default function AnimeSearch() {
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
-  // --- QUERY GRAPHQL ANILIST (FIXED ERROR HANDLING) ---
   const fetchAnilistMetadata = async (ids: number[]) => {
     const query = `
     query ($ids: [Int]) {
@@ -125,8 +169,8 @@ export default function AnimeSearch() {
         media(id_in: $ids, type: ANIME) {
           id
           description
-          seasonYear      # Tahun Season (Utama)
-          startDate {     # Tahun Rilis (Backup)
+          seasonYear
+          startDate {
             year
           }
           episodes
@@ -161,23 +205,18 @@ export default function AnimeSearch() {
         });
         const data = await response.json();
         
-        // --- PERBAIKAN DI SINI ---
-        // Cek apakah struktur data yang diharapkan benar-benar ada
         if (data && data.data && data.data.Page && data.data.Page.media) {
             return data.data.Page.media;
         } else {
-            // Jika ada error dari AniList (misal ID tidak ditemukan), return array kosong
             console.warn("AniList API returned unexpected structure or errors:", data);
             return [];
         }
-
     } catch (e) {
         console.error("Gagal fetch deskripsi AniList", e);
         return [];
     }
   };
 
-  // --- LOGIC SEARCH UTAMA ---
   const handleSearch = async () => {
     if (!imageFile && !imageUrl) {
         setError("Harap upload gambar atau masukkan URL gambar.");
@@ -224,7 +263,6 @@ export default function AnimeSearch() {
       const metadata = await fetchAnilistMetadata(animeIds);
 
       const finalResults = topResults.map((result: AnimeResult) => {
-         // Gunakan optional chaining (?.) dan default value untuk menghindari crash jika metadata kosong
          const meta = metadata ? metadata.find((m: any) => m.id === result.anilist.id) : null;
          
          return {
@@ -391,20 +429,14 @@ export default function AnimeSearch() {
               return (
                 <div key={idx} className="bg-slate-900/60 border border-slate-700 rounded-xl overflow-hidden flex flex-col lg:flex-row hover:border-blue-500/50 transition-all shadow-xl group">
                   
-                  {/* KOLOM 1: VIDEO PREVIEW */}
-                  <div className="w-full lg:w-1/3 aspect-video bg-black relative shrink-0">
-                     <video 
-                       src={item.video} 
-                       controls 
-                       muted 
-                       className="w-full h-full object-contain"
-                     />
-                     <div className={`absolute top-2 left-2 bg-black/80 ${similarityColor} text-xs font-mono px-2 py-1 rounded border shadow-lg z-10`}>
-                       {similarityPercent.toFixed(1)}% Match
-                     </div>
-                  </div>
+                  {/* COMPONENT VIDEO PLAYER CUSTOM (Di Kiri) */}
+                  <VideoPreview 
+                    url={item.video} 
+                    similarityColor={similarityColor} 
+                    similarityPercent={similarityPercent.toFixed(1)} 
+                  />
 
-                  {/* KOLOM 2: INFO DETAIL & COVER */}
+                  {/* KOLOM 2: INFO DETAIL & COVER (Di Kanan) */}
                   <div className="p-5 flex-1 flex flex-col md:flex-row gap-6">
                      <div className="flex-1 min-w-0">
                         {/* Judul */}
