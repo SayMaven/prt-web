@@ -294,17 +294,6 @@ export default function AnimeSearch() {
 
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-8">
-      
-      {/* HEADER */}
-      <div className="text-center space-y-2">
-        <h1 className="text-5xl font-bold text-white flex items-center justify-center gap-2">
-           Maven Anime Vision
-        </h1>
-        <p className="text-slate-400">
-          Cari judul, episode, dan informasi lengkap anime dari screenshot adegan.
-        </p>
-      </div>
-
       {/* INPUT AREA */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
         {!previewUrl ? (

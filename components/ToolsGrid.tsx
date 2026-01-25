@@ -117,13 +117,9 @@ export default function ToolsGrid() {
                   {tool.title}
                 </h2>
                 
-                {/* Category Badge (Pindah ke bawah judul, bentuk Pill) */}
+                {/* Category Badge (FIXED: Selalu pakai getCategoryColor + backdrop-blur) */}
                 <div className="mb-3">
-                   <span className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full border ${
-                     tool.image 
-                       ? "bg-white/10 text-white/90 border-white/20 backdrop-blur-md" 
-                       : getCategoryColor(tool.category)
-                   }`}>
+                   <span className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full border backdrop-blur-md shadow-sm ${getCategoryColor(tool.category)}`}>
                       {tool.category || "App"}
                    </span>
                 </div>

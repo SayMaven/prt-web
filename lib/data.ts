@@ -58,10 +58,11 @@ export const tools: Tool[] = [
     id: 1,
     title: "Anime Season",
     description: "Cek anime apa saja yang sedang tayang musim ini (API Integration).",
-    icon: "⛩️", 
+    icon: "", 
     link: "/tools/anime-schedule",
-    status: "Ready",
-    category: "Anime"
+    status: "Hot",
+    category: "Anime",
+    image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768230433/Sweet_Cat_%28After_Training%29.jpg"
   },
   {
     id: 2,
@@ -77,10 +78,11 @@ export const tools: Tool[] = [
     id: 3,
     title: "What Anime Is This?",
     description: "Cari judul anime, episode, dan menit keberapa hanya dari screenshot adegan.",
-    icon: "🧐",
+    icon: "",
     link: "/tools/anime-search",
     status: "Ultimate",
-    category: "Anime"
+    category: "Anime",
+    image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1769011969/Happy_Heart_Filling_Messages_%28After_Training%29.png"
   },
   {
   id: 4, 
@@ -93,13 +95,14 @@ export const tools: Tool[] = [
   image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768794809/4951Maya-Yamato-Power-A-Moment-Of-Morning-Sunlight-Ofcqtv_nnr9lz.png"
   },
   {
-  id: 5,
-  title: "Cek Cuaca",
-  description: "Lihat suhu, kondisi, dan kelembaban udara di kotamu.",
-  icon: "🌤️", 
-  link: "/tools/weather",
-  status: "New",
-  category: "Utility",
+    id: 5,
+    title: "CivitAI Explorer",
+    description: "Cari model AI & LoRA, lihat preview, dan salin Trigger Word dengan cepat.",
+    icon: "",
+    link: "/tools/civitai-explorer",
+    status: "Ultimate",
+    category: "Media",
+    image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768230432/Let%27s_Get_Started%21_%28After_Training%29.jpg"
   },
   {
   id: 6,
@@ -109,7 +112,7 @@ export const tools: Tool[] = [
   link: "/tools/bg-remover",
   status: "New",
   category: "Design",
-  image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768925528/5109Maya-Yamato-Power-Precise-and-Brilliant-Judgment-pyCiAk_awf3nv.png"
+  image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768925528/Precise_and_Brilliant_Judgment.png"
   },
   {
   id: 7,
@@ -263,5 +266,14 @@ export const tools: Tool[] = [
     link: "/tools/random-picker",
     status: "Ready",
     category: "Utility"
+  },
+  {
+  id: 24,
+  title: "Cek Cuaca",
+  description: "Lihat suhu, kondisi, dan kelembaban udara di kotamu.",
+  icon: "🌤️", 
+  link: "/tools/weather",
+  status: "Ready",
+  category: "Utility",
   },
 ];
