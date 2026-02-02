@@ -72,7 +72,7 @@ export const tools: Tool[] = [
     link: "/tools/anime-explorer",
     status: "Ultimate", 
     category: "Anime",
-    image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768587191/%E0%AD%A8%E0%AD%A7_maya_yamato_card_doye7r.jpg"
+    image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768587191/Presentation_Full_of_Enthusiasm_%28After_Training%29.jpg"
   },
   {
     id: 3,
@@ -92,7 +92,7 @@ export const tools: Tool[] = [
   link: "/tools/maven-downloader",
   status: "Hot", 
   category: "Utility",
-  image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768794809/4951Maya-Yamato-Power-A-Moment-Of-Morning-Sunlight-Ofcqtv_nnr9lz.png"
+  image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768794809/A_Moment_Of_Morning_Sunlight_%28After_Training%29.png"
   },
   {
     id: 5,
@@ -112,7 +112,7 @@ export const tools: Tool[] = [
   link: "/tools/bg-remover",
   status: "New",
   category: "Design",
-  image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768925528/Precise_and_Brilliant_Judgment.png"
+  image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768925528/Precise_and_Brilliant_Judgment_%28After_Training%29.png"
   },
   {
   id: 7,
@@ -121,7 +121,8 @@ export const tools: Tool[] = [
   icon: "📱",
   link: "/tools/qr-code",
   status: "Ready",
-  category: "Dev"
+  category: "Dev",
+  image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768230432/Precious_birthday%21.jpg"
   },
   {
   id: 8,
@@ -131,6 +132,7 @@ export const tools: Tool[] = [
   link: "/tools/audio-editor",
   status: "New",
   category: "Media", 
+  image: "https://res.cloudinary.com/ds4a54vuy/image/upload/v1768230433/Unfair_Water_play_%28Before_Training%29.jpg"
   },
   {
     id: 9, 
