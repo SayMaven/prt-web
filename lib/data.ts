@@ -278,4 +278,22 @@ export const tools: Tool[] = [
   status: "Ready",
   category: "Utility",
   },
+  {
+    id: 25,
+    title: "KeyMaster",
+    description: "Tes keyboard mekanikal, cek N-Key Rollover (NKRO), dan latensi input.",
+    icon: "⌨️",
+    link: "/tools/key-master",
+    status: "New",
+    category: "Utility"
+  },
+  {
+    id: 26,
+    title: "PixelConverter",
+    description: "Konversi gambar massal (JPG/PNG/WEBP) dan kompresi tanpa upload server.",
+    icon: "🎨",
+    link: "/tools/pixel-converter",
+    status: "New",
+    category: "Utility"
+  },
 ];
