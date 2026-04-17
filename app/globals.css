@@ -5,27 +5,110 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* ==========================================================
+   LIGHT MODE — default
+   ========================================================== */
 :root {
-  --background: #1b0f46;
+  --page-bg:        #f2f4fa;
+  --page-bg-2:      #e8ebf5;
+  --card-bg:        rgba(255,255,255,0.90);
+  --card-border:    rgba(148,163,184,0.28);
+  --card-border-hover: rgba(99,102,241,0.50);
+  --nav-bg:         rgba(242,244,250,0.90);
+  --nav-border:     rgba(148,163,184,0.22);
+  --text-primary:   #111827;
+  --text-secondary: #374151;
+  --text-muted:     #6b7280;
+  --footer-bg:      rgba(226,232,240,0.70);
+  --footer-border:  rgba(148,163,184,0.28);
 
-  /* Kita ganti hitam pekat (#171717) jadi Slate-900 (#0f172a) biar elegan */
-  --foreground: #0f172a;
+  /* marquee */
+  --marquee-bg:     rgba(226,232,240,0.60);
+  --marquee-border: rgba(148,163,184,0.30);
+  --marquee-fade:   #f2f4fa;
+
+  /* Accent — changeable by color wheel */
+  --accent:         #6366f1;
+  --accent-subtle:  rgba(99,102,241,0.10);
+  --accent-glow:    rgba(99,102,241,0.25);
+  --accent-text:    #4f46e5;
+
+  --shadow:         0 4px 24px -4px rgba(15,23,42,0.10);
 }
 
-/* Jika nanti browser diset Dark Mode, otomatis berubah ke sini */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f172a;
-    --foreground: #8848ff;
-  }
+/* ==========================================================
+   DARK MODE — html.dark
+   ========================================================== */
+html.dark {
+  --page-bg:        #0f1623;
+  --page-bg-2:      #151d2e;
+  --card-bg:        rgba(21,29,46,0.80);
+  --card-border:    rgba(51,65,85,0.55);
+  --card-border-hover: rgba(99,102,241,0.45);
+  --nav-bg:         rgba(10,13,20,0.90);
+  --nav-border:     rgba(51,65,85,0.40);
+  --text-primary:   #f0f4ff;
+  --text-secondary: #b0bec5;
+  --text-muted:     #64748b;
+  --footer-bg:      rgba(10,13,20,0.80);
+  --footer-border:  rgba(51,65,85,0.40);
+
+  /* marquee */
+  --marquee-bg:     rgba(21,29,46,0.50);
+  --marquee-border: rgba(51,65,85,0.50);
+  --marquee-fade:   #0f1623;
+
+  --accent:         #6366f1;
+  --accent-subtle:  rgba(99,102,241,0.14);
+  --accent-glow:    rgba(99,102,241,0.35);
+  --accent-text:    #818cf8;
+
+  --shadow:         0 4px 40px -8px rgba(0,0,0,0.55);
 }
 
-/* Settingan Body Utama */
-html,
+/* ==========================================================
+   BASE
+   ========================================================== */
+html {
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background-color: var(--page-bg);
+  color: var(--text-primary);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ==========================================================
+   SEMANTIC CARD HELPER
+   ========================================================== */
+.card-base {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.35s ease;
+}
+.card-base:hover {
+  border-color: var(--card-border-hover);
+  box-shadow: var(--shadow), 0 0 30px var(--accent-glow);
+  transform: translateY(-3px);
+}
+
+/* ==========================================================
+   ACCENT UTILITIES
+   ========================================================== */
+.accent-text   { color: var(--accent-text); }
+.accent-bg     { background-color: var(--accent); }
+.accent-border { border-color: var(--accent); }
+.accent-glow   { box-shadow: 0 0 28px var(--accent-glow); }
+.accent-subtle { background-color: var(--accent-subtle); }
+
+/* ==========================================================
+   SCROLLBAR
+   ========================================================== */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }

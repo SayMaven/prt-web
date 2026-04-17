@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar"; 
 import ChatWidget from "@/components/ChatWidget";
 import VisitorCounter from "@/components/VisitorCounter";
+import ThemeController from "@/components/ThemeController";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -42,9 +43,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
-      {/* Menambahkan bg-slate-950 agar background gelap konsisten */}
-      <body className={`${inter.className} min-h-screen flex flex-col text-slate-200 antialiased relative bg-slate-950`}>
+    <html lang="en" className="scroll-smooth dark">
+      <body className={`${inter.className} min-h-screen flex flex-col antialiased relative`}
+        style={{ backgroundColor: 'var(--page-bg)', color: 'var(--text-primary)' }}
+      >
 
         <div className="fixed z-[100] top-5 right-20 md:top-auto md:right-auto md:bottom-7 md:left-14"> 
           <VisitorCounter />
@@ -59,11 +61,19 @@ export default function RootLayout({
         </main>
 
         {/* --- FOOTER --- */}
-        <footer className="border-t border-white/5 bg-slate-900/50 py-8 mt-auto backdrop-blur-sm">
-          <div className="max-w-5xl mx-auto px-4 text-center text-sm text-slate-400">
+        <footer
+          className="border-t py-8 mt-auto backdrop-blur-sm"
+          style={{ background: 'var(--footer-bg)', borderColor: 'var(--footer-border)' }}
+        >
+          <div className="max-w-5xl mx-auto px-4 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
             <p>&copy; {new Date().getFullYear()} SayMaven. Dibangun dengan ❤️ for Maya</p>
           </div>
         </footer>
+
+        {/* --- FLOATING THEME CONTROLLER (above ChatWidget) --- */}
+        <div className="fixed bottom-[7.5rem] right-6 z-[200] flex flex-col items-end">
+          <ThemeController />
+        </div>
 
         {/* --- WIDGET LAINNYA --- */}
         <ChatWidget />

@@ -96,7 +96,7 @@ export default async function PortfolioPage() {
           </span>
         </h1>
         <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
-          Pusat integrasi dari beberapa proyek *open-source* dan privat mutakhir yang pernah saya rintis, meliputi eksperimen *web-app*, API *endpoint*, hingga eksplorasi AI interaktif.
+          Pusat integrasi dari beberapa proyek <b className="text-slate-200 font-semibold">open-source</b> dan privat mutakhir yang pernah saya rintis, meliputi eksperimen <b className="text-slate-200 font-semibold">web-app</b>, API <b className="text-slate-200 font-semibold">endpoint</b>, hingga eksplorasi AI interaktif.
         </p>
       </section>
 
