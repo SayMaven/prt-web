@@ -89,14 +89,14 @@ export default async function PortfolioPage() {
       
       {/* Header Halaman */}
       <section className="mt-4">
-        <h1 className="text-4xl font-extrabold text-white mb-4 tracking-tight flex justify-between items-center flex-wrap gap-4">
+        <h1 className="text-4xl font-extrabold mb-4 tracking-tight flex justify-between items-center flex-wrap gap-4" style={{ color: "var(--text-primary)" }}>
           <span>My Projects 💡</span>
-          <span className="text-sm font-medium text-blue-400 bg-blue-500/10 px-3 py-1.5 rounded-full border border-blue-500/20 shadow-inner">
+          <span className="text-sm font-medium px-3 py-1.5 rounded-full border shadow-inner" style={{ color: "var(--accent-text)", background: "var(--accent-subtle)", borderColor: "var(--accent)" }}>
             {finalProjects.length} Active System{finalProjects.length > 1 ? 's' : ''}
           </span>
         </h1>
-        <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
-          Pusat integrasi dari beberapa proyek <b className="text-slate-200 font-semibold">open-source</b> dan privat mutakhir yang pernah saya rintis, meliputi eksperimen <b className="text-slate-200 font-semibold">web-app</b>, API <b className="text-slate-200 font-semibold">endpoint</b>, hingga eksplorasi AI interaktif.
+        <p className="text-lg max-w-2xl leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+          Pusat integrasi dari beberapa proyek <b style={{ color: "var(--text-primary)" }}>open-source</b> dan privat mutakhir yang pernah saya rintis, meliputi eksperimen <b style={{ color: "var(--text-primary)" }}>web-app</b>, API <b style={{ color: "var(--text-primary)" }}>endpoint</b>, hingga eksplorasi AI interaktif.
         </p>
       </section>
 
@@ -105,8 +105,8 @@ export default async function PortfolioPage() {
 
       {/* Empty State Darurat jika gagal me-load data */}
       {finalProjects.length === 0 && (
-        <div className="text-center py-20 bg-slate-900/30 rounded-2xl border border-slate-800 border-dashed">
-            <p className="text-slate-500">Menunggu respons dari server GitHub...</p>
+        <div className="text-center py-20 rounded-2xl border border-dashed" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
+            <p style={{ color: "var(--text-muted)" }}>Menunggu respons dari server GitHub...</p>
         </div>
       )}
     </div>

@@ -6,7 +6,6 @@ import { useState, useMemo } from "react";
 
 const CATEGORIES = ["All", "Anime", "Dev", "Design", "Productivity", "Utility"];
 
-// Fungsi untuk memberi warna unik tiap kategori
 const getCategoryColor = (category: string) => {
   switch (category) {
     case "Anime": return "bg-pink-500/10 text-pink-400 border-pink-500/20";
@@ -15,7 +14,7 @@ const getCategoryColor = (category: string) => {
     case "Productivity": return "bg-orange-500/10 text-orange-400 border-orange-500/20";
     case "Utility": return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
     case "Media": return "bg-red-500/10 text-red-400 border-red-500/20"; 
-    default: return "bg-slate-800 text-slate-400 border-slate-700";
+    default: return "bg-slate-500/10 text-slate-400 border-slate-500/20";
   }
 };
 
@@ -49,11 +48,12 @@ export default function ToolsGrid() {
             <button
               key={cat}
               onClick={() => { setActiveCategory(cat); setVisibleCount(8); }}
-              className={`px-4 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all border ${
+              className="px-4 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all border"
+              style={
                 activeCategory === cat
-                  ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/25"
-                  : "bg-slate-900 border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-              }`}
+                  ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff", boxShadow: "0 0 16px var(--accent-glow)" }
+                  : { background: "var(--card-bg)", borderColor: "var(--card-border)", color: "var(--text-secondary)" }
+              }
             >
               {cat}
             </button>
@@ -61,13 +61,14 @@ export default function ToolsGrid() {
         </div>
 
         <div className="relative w-full md:w-64 flex-shrink-0">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-500">🔍</span>
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: "var(--text-muted)" }}>🔍</span>
           <input
             type="text"
             placeholder="Cari tools..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full bg-slate-900 border border-slate-800 text-white text-sm rounded-full focus:ring-blue-500 focus:border-blue-500 block pl-10 p-2.5 shadow-lg placeholder:text-slate-600 transition-all"
+            className="w-full text-sm rounded-full block pl-10 p-2.5 shadow-lg transition-all border focus:outline-none"
+            style={{ background: "var(--card-bg)", borderColor: "var(--card-border)", color: "var(--text-primary)" }}
           />
         </div>
       </div>
@@ -79,9 +80,16 @@ export default function ToolsGrid() {
             <Link
               href={tool.link}
               key={tool.id}
-              className={`group relative block p-5 rounded-3xl border transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-blue-500/10 flex flex-col h-full overflow-hidden ${
-                tool.image ? "border-slate-700 hover:border-blue-400" : "bg-slate-900 border-slate-800 hover:border-blue-500/50 hover:bg-slate-800/50"
+              className={`group relative block p-5 rounded-3xl border transition-all duration-300 hover:-translate-y-1 shadow-lg flex flex-col h-full overflow-hidden ${
+                tool.image ? "hover:shadow-xl" : ""
               }`}
+              style={
+                tool.image
+                  ? { borderColor: "var(--card-border)" }
+                  : { background: "var(--card-bg)", borderColor: "var(--card-border)" }
+              }
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--card-border)"; }}
             >
               {/* Background Image Logic */}
               {tool.image && (
@@ -90,7 +98,7 @@ export default function ToolsGrid() {
                     className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-100"
                     style={{ backgroundImage: `url('${tool.image}')` }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-slate-950/30" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
                 </>
               )}
 
@@ -101,7 +109,6 @@ export default function ToolsGrid() {
                     {tool.icon}
                   </span>
                   
-                  {/* Status Badge (Pojok Kanan Atas) */}
                   {tool.status && tool.status !== "Ready" && (
                     <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border shadow-sm backdrop-blur-sm ${
                         tool.status === "New" ? "bg-green-500/20 text-green-400 border-green-500/30" :
@@ -113,18 +120,24 @@ export default function ToolsGrid() {
                   )}
                 </div>
                 
-                <h2 className={`text-base font-bold mb-1 line-clamp-1 transition-colors ${tool.image ? "text-white group-hover:text-blue-300 drop-shadow-md" : "text-white group-hover:text-blue-400"}`}>
+                <h2
+                  className={`text-base font-bold mb-1 line-clamp-1 transition-colors ${tool.image ? "text-white drop-shadow-md" : ""}`}
+                  style={tool.image ? {} : { color: "var(--text-primary)" }}
+                >
                   {tool.title}
                 </h2>
                 
-                {/* Category Badge (FIXED: Selalu pakai getCategoryColor + backdrop-blur) */}
+                {/* Category Badge */}
                 <div className="mb-3">
                    <span className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full border backdrop-blur-md shadow-sm ${getCategoryColor(tool.category)}`}>
                       {tool.category || "App"}
                    </span>
                 </div>
 
-                <p className={`text-xs text-slate-400 line-clamp-2 mt-auto ${tool.image ? "text-slate-300" : ""}`}>
+                <p
+                  className={`text-xs line-clamp-2 mt-auto ${tool.image ? "text-white/80 drop-shadow-sm" : ""}`}
+                  style={tool.image ? {} : { color: "var(--text-muted)" }}
+                >
                   {tool.description}
                 </p>
 
@@ -133,15 +146,19 @@ export default function ToolsGrid() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-20 border border-dashed border-slate-800 rounded-3xl bg-slate-900/30">
-          <p className="text-slate-500">Tidak ada tool ditemukan.</p>
-          <button onClick={() => {setQuery(""); setActiveCategory("All")}} className="mt-2 text-blue-400 hover:text-blue-300 underline text-sm">Reset Filter</button>
+        <div className="text-center py-20 border border-dashed rounded-3xl" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
+          <p style={{ color: "var(--text-muted)" }}>Tidak ada tool ditemukan.</p>
+          <button onClick={() => {setQuery(""); setActiveCategory("All")}} className="mt-2 underline text-sm" style={{ color: "var(--accent-text)" }}>Reset Filter</button>
         </div>
       )}
 
       {visibleCount < filteredTools.length && (
         <div className="flex justify-center pt-4">
-          <button onClick={showMore} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-full transition-all shadow-lg active:scale-95 text-sm border border-slate-700">
+          <button
+            onClick={showMore}
+            className="px-6 py-3 font-bold rounded-full transition-all shadow-lg active:scale-95 text-sm border"
+            style={{ background: "var(--card-bg)", borderColor: "var(--card-border)", color: "var(--text-primary)" }}
+          >
             Load More ({filteredTools.length - visibleCount}) ↓
           </button>
         </div>

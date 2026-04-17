@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 
 export default function PasswordGenerator() {
-  // State untuk menyimpan konfigurasi
   const [password, setPassword] = useState("");
   const [length, setLength] = useState(12);
   const [includeUppercase, setIncludeUppercase] = useState(true);
@@ -11,7 +10,6 @@ export default function PasswordGenerator() {
   const [includeSymbols, setIncludeSymbols] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  // Logic: Fungsi Membuat Password
   const generatePassword = () => {
     let charset = "abcdefghijklmnopqrstuvwxyz";
     if (includeUppercase) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -24,17 +22,15 @@ export default function PasswordGenerator() {
       generatedPassword += charset[randomIndex];
     }
     setPassword(generatedPassword);
-    setCopied(false); // Reset status copy
+    setCopied(false);
   };
 
-  // Logic: Fungsi Copy ke Clipboard
   const handleCopy = () => {
     navigator.clipboard.writeText(password);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000); // Balikin teks setelah 2 detik
+    setTimeout(() => setCopied(false), 2000);
   };
 
-  // Generate otomatis saat pertama kali dibuka
   useEffect(() => {
     generatePassword();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -45,26 +41,25 @@ export default function PasswordGenerator() {
       
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-white mb-2">Password Generator</h1>
-        <p className="text-emerald-500">Buat password kuat dan aman dalam hitungan detik.</p>
+        <h1 className="text-3xl font-bold mb-2 tool-title">Password Generator</h1>
+        <p style={{ color: "var(--accent-text)" }}>Buat password kuat dan aman dalam hitungan detik.</p>
       </div>
 
-      {/* Box Hasil Password */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm relative group">
-        <div className="text-2xl font-mono font-bold text-center break-all tracking-wider text-gray-800">
+      {/* Result Box */}
+      <div className="tool-card p-6 rounded-xl relative group">
+        <div className="text-2xl font-mono font-bold text-center break-all tracking-wider tool-title">
           {password}
         </div>
         
-        {/* Tombol Copy Absolute di kanan */}
         <button
           onClick={handleCopy}
-          className="absolute top-1/2 -translate-y-1/2 right-4 p-2 bg-gray-100 hover:bg-blue-100 text-gray-600 hover:text-blue-600 rounded-lg transition-colors"
+          className="absolute top-1/2 -translate-y-1/2 right-4 p-2 rounded-lg transition-all hover:scale-110"
+          style={{ background: "var(--accent-subtle)", color: "var(--accent-text)" }}
           title="Copy to Clipboard"
         >
           {copied ? (
-            <span className="text-sm font-bold text-green-600">Copied!</span>
+            <span className="text-sm font-bold text-green-500">Copied!</span>
           ) : (
-            // Ikon Copy sederhana
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
@@ -73,14 +68,16 @@ export default function PasswordGenerator() {
         </button>
       </div>
 
-      {/* Kontrol / Setting */}
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6">
+      {/* Settings */}
+      <div className="tool-card p-6 rounded-xl space-y-6">
         
-        {/* Slider Panjang Karakter */}
+        {/* Length Slider */}
         <div>
           <div className="flex justify-between mb-2">
-            <label className="font-medium text-gray-700">Panjang Karakter</label>
-            <span className="font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">{length}</span>
+            <label className="font-medium tool-body">Panjang Karakter</label>
+            <span className="font-bold px-2 py-1 rounded-md text-sm" style={{ background: "var(--accent-subtle)", color: "var(--accent-text)" }}>
+              {length}
+            </span>
           </div>
           <input
             type="range"
@@ -88,47 +85,35 @@ export default function PasswordGenerator() {
             max="32"
             value={length}
             onChange={(e) => setLength(Number(e.target.value))}
-            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+            style={{ accentColor: "var(--accent)" }}
           />
         </div>
 
         {/* Checkbox Options */}
         <div className="space-y-3">
-          <label className="flex items-center space-x-3 cursor-pointer">
-            <input 
-              type="checkbox" 
-              checked={includeUppercase} 
-              onChange={(e) => setIncludeUppercase(e.target.checked)}
-              className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500" 
-            />
-            <span className="text-gray-700">Huruf Besar (A-Z)</span>
-          </label>
-
-          <label className="flex items-center space-x-3 cursor-pointer">
-            <input 
-              type="checkbox" 
-              checked={includeNumbers} 
-              onChange={(e) => setIncludeNumbers(e.target.checked)}
-              className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500" 
-            />
-            <span className="text-gray-700">Angka (0-9)</span>
-          </label>
-
-          <label className="flex items-center space-x-3 cursor-pointer">
-            <input 
-              type="checkbox" 
-              checked={includeSymbols} 
-              onChange={(e) => setIncludeSymbols(e.target.checked)}
-              className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500" 
-            />
-            <span className="text-gray-700">Simbol (!@#$)</span>
-          </label>
+          {[
+            { label: "Huruf Besar (A-Z)", state: includeUppercase, setter: setIncludeUppercase },
+            { label: "Angka (0-9)", state: includeNumbers, setter: setIncludeNumbers },
+            { label: "Simbol (!@#$)", state: includeSymbols, setter: setIncludeSymbols },
+          ].map(({ label, state, setter }) => (
+            <label key={label} className="flex items-center space-x-3 cursor-pointer group/c">
+              <input 
+                type="checkbox" 
+                checked={state} 
+                onChange={(e) => setter(e.target.checked)}
+                className="w-5 h-5 rounded focus:ring-0 cursor-pointer"
+                style={{ accentColor: "var(--accent)" }}
+              />
+              <span className="tool-body group-hover/c:text-[var(--text-primary)] transition-colors">{label}</span>
+            </label>
+          ))}
         </div>
 
-        {/* Tombol Generate Ulang */}
+        {/* Generate Button */}
         <button
           onClick={generatePassword}
-          className="w-full py-3 bg-black text-white font-bold rounded-lg hover:bg-gray-800 transition-transform active:scale-95"
+          className="tool-btn-primary w-full py-3 font-bold rounded-lg transition-all hover:opacity-90 active:scale-95"
         >
           Generate Password Baru 🔄
         </button>

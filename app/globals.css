@@ -9,31 +9,31 @@
    LIGHT MODE — default
    ========================================================== */
 :root {
-  --page-bg:        #f2f4fa;
-  --page-bg-2:      #e8ebf5;
-  --card-bg:        rgba(255,255,255,0.90);
-  --card-border:    rgba(148,163,184,0.28);
-  --card-border-hover: rgba(99,102,241,0.50);
-  --nav-bg:         rgba(242,244,250,0.90);
-  --nav-border:     rgba(148,163,184,0.22);
+  --page-bg:        #ffffff;
+  --page-bg-2:      #f8f9ff;       /* Barely-tinted indigo-white for nested surfaces */
+  --card-bg:        rgba(255,255,255,0.95);
+  --card-border:    rgba(148,163,184,0.22);
+  --card-border-hover: rgba(99,102,241,0.40);
+  --nav-bg:         rgba(255,255,255,0.92);
+  --nav-border:     rgba(148,163,184,0.18);
   --text-primary:   #111827;
   --text-secondary: #374151;
   --text-muted:     #6b7280;
-  --footer-bg:      rgba(226,232,240,0.70);
-  --footer-border:  rgba(148,163,184,0.28);
+  --footer-bg:      rgba(248,249,255,0.95);
+  --footer-border:  rgba(148,163,184,0.20);
 
   /* marquee */
-  --marquee-bg:     rgba(226,232,240,0.60);
-  --marquee-border: rgba(148,163,184,0.30);
-  --marquee-fade:   #f2f4fa;
+  --marquee-bg:     rgba(248,249,255,0.80);
+  --marquee-border: rgba(148,163,184,0.22);
+  --marquee-fade:   #ffffff;
 
   /* Accent — changeable by color wheel */
   --accent:         #6366f1;
-  --accent-subtle:  rgba(99,102,241,0.10);
-  --accent-glow:    rgba(99,102,241,0.25);
+  --accent-subtle:  rgba(99,102,241,0.08);
+  --accent-glow:    rgba(99,102,241,0.20);
   --accent-text:    #4f46e5;
 
-  --shadow:         0 4px 24px -4px rgba(15,23,42,0.10);
+  --shadow:         0 2px 12px -2px rgba(15,23,42,0.06), 0 0 0 1px rgba(148,163,184,0.12);
 }
 
 /* ==========================================================
@@ -112,3 +112,41 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 99px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ==========================================================
+   TOOL PAGE HELPERS — apply to individual tool pages
+   =================================================== */
+/* Headings, text shortcuts */
+.tool-title   { color: var(--text-primary) !important; }
+.tool-body    { color: var(--text-secondary) !important; }
+.tool-muted   { color: var(--text-muted) !important; }
+
+/* Cards and panels */
+.tool-card {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  box-shadow: var(--shadow);
+}
+.tool-card:hover { border-color: var(--card-border-hover) !important; }
+
+/* Input + select + textarea */
+.tool-input {
+  background: var(--page-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--text-primary) !important;
+}
+.tool-input:focus { border-color: var(--accent) !important; outline: none; }
+.tool-input::placeholder { color: var(--text-muted); }
+
+/* Buttons */
+.tool-btn-primary {
+  background: var(--accent) !important;
+  color: #fff !important;
+  box-shadow: 0 0 16px var(--accent-glow);
+}
+.tool-btn-secondary {
+  background: var(--card-bg) !important;
+  border: 1px solid var(--card-border) !important;
+  color: var(--text-primary) !important;
+}
+.tool-btn-secondary:hover { border-color: var(--accent) !important; }
