@@ -1,96 +1,114 @@
 import { Metadata } from "next";
-import { projects } from "@/lib/data"; 
-import Link from "next/link";
+import ProjectsGrid, { GithubRepo } from "./ProjectsGrid";
 
 export const metadata: Metadata = {
-  title: "Portfolio",
-  description: "Daftar proyek terpilih dan case study coding.",
+  title: "Projects",
+  description: "Daftar proyek eksklusif, case study coding, dan repository aktif dari GitHub.",
 };
 
-export default function PortfolioPage() {
+export default async function PortfolioPage() {
+  let githubRepos: GithubRepo[] = [];
+  try {
+    const res = await fetch("https://api.github.com/users/SayMaven/repos?sort=updated&per_page=100", {
+      next: { revalidate: 3600 }, // Cache statis revalidate tiap 1 jam
+    });
+    if (res.ok) {
+      const data = await res.json();
+      
+      // Filter repos: Abaikan forks, saymaven.github.io, dan repo profil
+      githubRepos = data.filter((repo: any) => 
+        !repo.fork && 
+        repo.name !== 'saymaven.github.io' && 
+        repo.name !== 'SayMaven'
+      ).map((repo: any) => ({
+        id: repo.id,
+        name: repo.name,
+        description: repo.description,
+        html_url: repo.html_url,
+        homepage: repo.homepage,
+        language: repo.language,
+        stargazers_count: repo.stargazers_count,
+        topics: repo.topics || [],
+        updated_at: repo.updated_at,
+      }));
+
+      // Mapping khusus untuk repo yang deskripsinya null atau perlu penyesuaian detail
+      githubRepos = githubRepos.map(repo => {
+         if (repo.name === 'mavmanga-web') {
+           repo.description = "Platform baca manga murni memanfaatkan sumber API MangaDex, di mana saya menambahkan optimasi khusus, fitur kustom, dan perombakan antarmuka yang tidak dimiliki versi bawaannya.";
+         } else if (repo.name === 'bangdream') {
+           repo.description = "Ganso! BanG Dream Chan Note Shooter. Modifikasi dari web shooter game statis dengan injeksi translasi Bahasa Indonesia, integrasi API live score mandiri, serta peningkatan logika permainan & UI.";
+         } else if (repo.name === 'mavenflow') {
+           repo.description = "Web Data Aggregator seputar Jejepangan. Merangkum informasi spesifik secara presisi dengan AI, mencakup perbandingan harga barang, ranking ilustrasi Pixiv bulanan, tangga lagu Jepang, dan kompilasi berita.";
+         } else if (repo.name === 'prt-web') {
+           repo.description = "Digital Portfolio Website (Sistem yang sedang Anda gunakan saat ini!). Dibangun modern untuk menampilkan rincian proyek eksklusif dan visual showcase karya saya.";
+         } else if (repo.name === 'bangdream-api') {
+           repo.description = "API Backend Live Score & global leaderboard berbasis Python FastAPI, dirancang secara khusus untuk diintegrasikan dalam menampung data skor interaktif game Ganso BanG Dream Chan.";
+         }
+         return repo;
+      });
+
+    }
+  } catch (error) {
+    console.error("Gagal mengambil data dari GitHub:", error);
+  }
+
+  // Inject Private Repositories secara hardcoded sesuai rincian
+  const privateRepos: GithubRepo[] = [
+    {
+      id: "private-mavenbooru",
+      name: "mavenbooru-web",
+      description: "Sistem Galeri mutakhir ala Pinterest ditenagai API Danbooru. Mendukung filter tags spesifik, penyimpanan bookmark lokal beserta ekspor data, history gambar mulus, modal preview gambar mendetail, dan sistem Custom Collection.",
+      html_url: "https://mavenbooru.saymaven.cloud",
+      homepage: "https://mavenbooru.saymaven.cloud",
+      language: "TypeScript",
+      stargazers_count: 0,
+      topics: ["danbooru", "pinterest-ui", "gallery"],
+      updated_at: new Date().toISOString(),
+      isPrivate: true,
+    },
+    {
+      id: "private-mavenchat",
+      name: "mavenchat",
+      description: "Platform AI Custom Chat (mirip C.ai) yang memanfaatkan tenaga integrasi Multi-model LLM via OpenRouter. Pengguna bebas mengatur persona karakternya, ikon profil spesifik, beserta penyesuaian gaya bahasanya untuk chat interaktif berkelanjutan.",
+      html_url: "#",
+      homepage: null,
+      language: "TypeScript",
+      stargazers_count: 0,
+      topics: ["llm", "chatbot", "openrouter", "c.ai-clone"],
+      updated_at: new Date().toISOString(),
+      isPrivate: true,
+    }
+  ];
+
+  // Menggabungkan Public & Private repositori
+  const finalProjects = [...privateRepos, ...githubRepos];
+
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
       {/* Header Halaman */}
       <section className="mt-4">
-        <h1 className="text-4xl font-extrabold text-white mb-4 tracking-tight">
-          Selected Works 📁
+        <h1 className="text-4xl font-extrabold text-white mb-4 tracking-tight flex justify-between items-center flex-wrap gap-4">
+          <span>My Projects 💡</span>
+          <span className="text-sm font-medium text-blue-400 bg-blue-500/10 px-3 py-1.5 rounded-full border border-blue-500/20 shadow-inner">
+            {finalProjects.length} Active System{finalProjects.length > 1 ? 's' : ''}
+          </span>
         </h1>
         <p className="text-lg text-slate-400 max-w-2xl leading-relaxed">
-          Beberapa proyek yang pernah saya kerjakan, mulai dari eksperimen kecil, tools, hingga aplikasi web fullstack.
+          Pusat integrasi dari beberapa proyek *open-source* dan privat mutakhir yang pernah saya rintis, meliputi eksperimen *web-app*, API *endpoint*, hingga eksplorasi AI interaktif.
         </p>
       </section>
 
-      {/* Grid Project */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {projects.map((project) => (
-          <div 
-            key={project.id} 
-            className="group relative bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-1 flex flex-col"
-          >
-            {/* Dekorasi Warna di Atas (Tetap pakai warna dari data, tapi lebih tipis elegan) */}
-            <div className={`h-1 w-full ${project.color} opacity-80`} />
+      {/* Komponen Grid Client terisolasi buat Animasi */}
+      <ProjectsGrid projects={finalProjects} />
 
-            <div className="p-6 flex flex-col h-full">
-              {/* Judul Project */}
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="text-xl font-bold text-white group-hover:text-blue-400 transition-colors">
-                    {project.title}
-                </h3>
-                {/* Ikon Folder Hiasan */}
-                <span className="text-slate-700 group-hover:text-blue-500/50 transition-colors text-2xl">
-                    📂
-                </span>
-              </div>
-              
-              {/* Deskripsi */}
-              <p className="text-slate-300 text-sm mb-6 leading-relaxed line-clamp-3">
-                {project.description}
-              </p>
-
-              {/* Badges Tech Stack (Dark Style) */}
-              <div className="flex flex-wrap gap-2 mb-8">
-                {project.tech.map((t) => (
-                  <span key={t} className="text-xs font-mono font-medium px-2 py-1 bg-slate-950 border border-slate-800 text-slate-300 rounded-md">
-                    {t}
-                  </span>
-                ))}
-              </div>
-
-              {/* Tombol Action (Footer Card) */}
-              <div className="mt-auto pt-4 border-t border-slate-800 flex items-center gap-4">
-                <a 
-                  href={project.link} 
-                  target="_blank" 
-                  className="flex items-center gap-2 text-sm font-bold text-blue-400 hover:text-blue-300 transition-colors"
-                >
-                  <span>Live Demo</span>
-                  <span className="text-xs">↗</span>
-                </a>
-                
-                {project.github && (
-                    <a 
-                    href={project.github} 
-                    target="_blank" 
-                    className="flex items-center gap-2 text-sm font-bold text-slate-300 hover:text-white transition-colors"
-                    >
-                    <span>Source Code</span>
-                    </a>
-                )}
-              </div>
-            </div>
-
-          </div>
-        ))}
-      </div>
-
-      {/* Empty State jika belum ada project */}
-      {projects.length === 0 && (
+      {/* Empty State Darurat jika gagal me-load data */}
+      {finalProjects.length === 0 && (
         <div className="text-center py-20 bg-slate-900/30 rounded-2xl border border-slate-800 border-dashed">
-            <p className="text-slate-500">Belum ada project yang ditambahkan.</p>
+            <p className="text-slate-500">Menunggu respons dari server GitHub...</p>
         </div>
       )}
-
     </div>
   );
 }
