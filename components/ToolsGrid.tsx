@@ -1,166 +1,292 @@
 "use client";
 
-import { tools } from "@/lib/data"; 
+import { tools } from "@/lib/data";
 import Link from "next/link";
 import { useState, useMemo } from "react";
+import { motion, Variants } from "framer-motion";
+import { Search, Sparkles, Zap, Layers, Cpu, Wrench, Film } from "lucide-react";
 
-const CATEGORIES = ["All", "Anime", "Dev", "Design", "Productivity", "Utility"];
+/* ── Constants ─────────────────────────────────────────── */
+const CATEGORIES = [
+  { label: "All",          icon: Layers,   color: "var(--accent)" },
+  { label: "Anime",        icon: Sparkles, color: "#ec4899" },
+  { label: "Dev",          icon: Cpu,      color: "#3b82f6" },
+  { label: "Design",       icon: Film,     color: "#a855f7" },
+  { label: "Productivity", icon: Zap,      color: "#f59e0b" },
+  { label: "Utility",      icon: Wrench,   color: "#10b981" },
+];
 
-const getCategoryColor = (category: string) => {
-  switch (category) {
-    case "Anime": return "bg-pink-500/10 text-pink-400 border-pink-500/20";
-    case "Dev": return "bg-blue-500/10 text-blue-400 border-blue-500/20";
-    case "Design": return "bg-purple-500/10 text-purple-400 border-purple-500/20";
-    case "Productivity": return "bg-orange-500/10 text-orange-400 border-orange-500/20";
-    case "Utility": return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-    case "Media": return "bg-red-500/10 text-red-400 border-red-500/20"; 
-    default: return "bg-slate-500/10 text-slate-400 border-slate-500/20";
-  }
+const CAT_COLOR: Record<string, string> = {
+  Anime:        "#ec4899",
+  Dev:          "#3b82f6",
+  Design:       "#a855f7",
+  Productivity: "#f59e0b",
+  Utility:      "#10b981",
+  Media:        "#ef4444",
 };
 
-export default function ToolsGrid() {
-  const [query, setQuery] = useState("");
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [visibleCount, setVisibleCount] = useState(8); 
+// Placeholder gradient for tools without a Cloudinary image yet
+// Swap out by just adding `image: "url"` in lib/data.ts
+const CAT_PLACEHOLDER: Record<string, string> = {
+  Anime:        "linear-gradient(135deg, #500724 0%, #1e1b4b 100%)",
+  Dev:          "linear-gradient(135deg, #0c1a3a 0%, #0f172a 100%)",
+  Design:       "linear-gradient(135deg, #3b0764 0%, #1e1b4b 100%)",
+  Productivity: "linear-gradient(135deg, #451a03 0%, #0f172a 100%)",
+  Utility:      "linear-gradient(135deg, #022c22 0%, #0f172a 100%)",
+  Media:        "linear-gradient(135deg, #500000 0%, #0f172a 100%)",
+};
 
-  const filteredTools = useMemo(() => {
-    return tools.filter((tool) => {
-      const toolCat = tool.category || "Utility"; 
-      const matchesSearch = 
-        tool.title.toLowerCase().includes(query.toLowerCase()) ||
-        tool.description.toLowerCase().includes(query.toLowerCase());
-      const matchesCategory = 
-        activeCategory === "All" || toolCat === activeCategory;
-      return matchesSearch && matchesCategory;
-    });
-  }, [query, activeCategory]);
+// Placeholder dot-pattern SVG: subtle grid pattern
+const PLACEHOLDER_PATTERN = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/g%3E%3C/svg%3E")`;
+
+const BADGE: Record<string, string> = {
+  Hot:      "bg-orange-500/20 text-orange-400 border-orange-500/30",
+  Ultimate: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  New:      "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+};
+
+/* ── Framer Motion variants ─────────────────────────────── */
+const containerVariants: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.07 } },
+};
+
+const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 28, scale: 0.95 },
+  show:   { opacity: 1, y: 0,  scale: 1, transition: { type: "spring", stiffness: 120, damping: 18 } },
+};
+
+/* ── Component ──────────────────────────────────────────── */
+export default function ToolsGrid() {
+  const [query, setQuery]               = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [visibleCount, setVisibleCount] = useState(12);
+
+  const filteredTools = useMemo(() =>
+    tools.filter(t => {
+      const q = query.toLowerCase();
+      return (
+        (t.title.toLowerCase().includes(q) || t.description.toLowerCase().includes(q)) &&
+        (activeCategory === "All" || t.category === activeCategory)
+      );
+    }),
+  [query, activeCategory]);
 
   const visibleTools = filteredTools.slice(0, visibleCount);
-  const showMore = () => setVisibleCount((prev) => prev + 8);
+  const hasMore      = visibleCount < filteredTools.length;
 
   return (
-    <div className="space-y-8">
-      
-      {/* --- FILTER BAR --- */}
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-        <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 w-full md:w-auto scrollbar-hide">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => { setActiveCategory(cat); setVisibleCount(8); }}
-              className="px-4 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all border"
-              style={
-                activeCategory === cat
-                  ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff", boxShadow: "0 0 16px var(--accent-glow)" }
-                  : { background: "var(--card-bg)", borderColor: "var(--card-border)", color: "var(--text-secondary)" }
-              }
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+    <div className="space-y-7">
 
-        <div className="relative w-full md:w-64 flex-shrink-0">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none" style={{ color: "var(--text-muted)" }}>🔍</span>
-          <input
-            type="text"
-            placeholder="Cari tools..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full text-sm rounded-full block pl-10 p-2.5 shadow-lg transition-all border focus:outline-none"
-            style={{ background: "var(--card-bg)", borderColor: "var(--card-border)", color: "var(--text-primary)" }}
-          />
+      {/* ── Sticky Filter + Search ── */}
+      <div
+        className="sticky top-16 z-30 rounded-2xl border px-4 py-3 backdrop-blur-xl shadow-xl"
+        style={{ background: "var(--nav-bg)", borderColor: "var(--card-border)" }}
+      >
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+
+          {/* Category chips */}
+          <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
+            {CATEGORIES.map(({ label, icon: Icon, color }) => {
+              const active = activeCategory === label;
+              return (
+                <button
+                  key={label}
+                  onClick={() => { setActiveCategory(label); setVisibleCount(12); }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold whitespace-nowrap border transition-all duration-200 shrink-0"
+                  style={
+                    active
+                      ? { background: color + "22", borderColor: color, color }
+                      : { background: "transparent", borderColor: "var(--card-border)", color: "var(--text-muted)" }
+                  }
+                >
+                  <Icon className="w-3 h-3" />
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Search */}
+          <div className="relative w-full sm:w-56 flex-shrink-0">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none"
+              style={{ color: "var(--text-muted)" }}
+            />
+            <input
+              type="text"
+              placeholder="Cari tools..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+              className="w-full text-sm rounded-full pl-9 pr-4 py-2 border focus:outline-none transition-colors"
+              style={{ background: "var(--card-bg)", borderColor: "var(--card-border)", color: "var(--text-primary)" }}
+            />
+          </div>
         </div>
       </div>
 
-      {/* --- GRID TOOLS --- */}
+      {/* ── Result count ── */}
+      <div className="flex items-center justify-between px-0.5">
+        <p className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>
+          {filteredTools.length} tools ditemukan
+        </p>
+        {query && (
+          <button onClick={() => setQuery("")} className="text-xs underline" style={{ color: "var(--accent-text)" }}>
+            Clear
+          </button>
+        )}
+      </div>
+
+      {/* ── Unified Grid ── */}
       {visibleTools.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-in fade-in zoom-in duration-500">
-          {visibleTools.map((tool) => (
-            <Link
-              href={tool.link}
-              key={tool.id}
-              className={`group relative block p-5 rounded-3xl border transition-all duration-300 hover:-translate-y-1 shadow-lg flex flex-col h-full overflow-hidden ${
-                tool.image ? "hover:shadow-xl" : ""
-              }`}
-              style={
-                tool.image
-                  ? { borderColor: "var(--card-border)" }
-                  : { background: "var(--card-bg)", borderColor: "var(--card-border)" }
-              }
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--accent)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = "var(--card-border)"; }}
-            >
-              {/* Background Image Logic */}
-              {tool.image && (
-                <>
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110 opacity-60 group-hover:opacity-100"
-                    style={{ backgroundImage: `url('${tool.image}')` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-black/20" />
-                </>
-              )}
+        <motion.div
+          key={activeCategory + "|" + query}
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+        >
+          {visibleTools.map(tool => {
+            const catColor = CAT_COLOR[tool.category] ?? "#6366f1";
+            const hasImage = Boolean(tool.image);
 
-              <div className="relative z-10 flex flex-col h-full">
-                
-                <div className="flex items-start justify-between mb-3">
-                  <span className="text-3xl filter drop-shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    {tool.icon}
-                  </span>
-                  
-                  {tool.status && tool.status !== "Ready" && (
-                    <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border shadow-sm backdrop-blur-sm ${
-                        tool.status === "New" ? "bg-green-500/20 text-green-400 border-green-500/30" :
-                        tool.status === "Hot" ? "bg-orange-500/20 text-orange-400 border-orange-500/30" :
-                        "bg-purple-500/20 text-purple-400 border-purple-500/30"
-                    }`}>
-                        {tool.status === "Ultimate" ? "PRO" : tool.status.toUpperCase()}
-                    </span>
-                  )}
-                </div>
-                
-                <h2
-                  className={`text-base font-bold mb-1 line-clamp-1 transition-colors ${tool.image ? "text-white drop-shadow-md" : ""}`}
-                  style={tool.image ? {} : { color: "var(--text-primary)" }}
+            return (
+              <motion.div key={tool.id} variants={cardVariants} className="flex">
+                <Link
+                  href={tool.link}
+                  className="group flex flex-col w-full rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 shadow-md"
+                  style={{ borderColor: "var(--card-border)", background: "var(--card-bg)" }}
+                  onMouseEnter={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.borderColor = catColor + "80";
+                    el.style.boxShadow   = `0 12px 36px ${catColor}28`;
+                  }}
+                  onMouseLeave={e => {
+                    const el = e.currentTarget as HTMLElement;
+                    el.style.borderColor = "var(--card-border)";
+                    el.style.boxShadow   = "";
+                  }}
                 >
-                  {tool.title}
-                </h2>
-                
-                {/* Category Badge */}
-                <div className="mb-3">
-                   <span className={`text-[10px] font-medium px-2.5 py-0.5 rounded-full border backdrop-blur-md shadow-sm ${getCategoryColor(tool.category)}`}>
-                      {tool.category || "App"}
-                   </span>
-                </div>
+                  {/* ── Visual Area (fixed height — always the same) ── */}
+                  <div className="relative h-36 overflow-hidden flex-shrink-0">
 
-                <p
-                  className={`text-xs line-clamp-2 mt-auto ${tool.image ? "text-white/80 drop-shadow-sm" : ""}`}
-                  style={tool.image ? {} : { color: "var(--text-muted)" }}
-                >
-                  {tool.description}
-                </p>
+                    {/* Top accent stripe */}
+                    <div
+                      className="absolute top-0 inset-x-0 h-0.5 z-20"
+                      style={{ background: catColor }}
+                    />
 
-              </div>
-            </Link>
-          ))}
-        </div>
+                    {/* Background: real image OR gradient placeholder */}
+                    {hasImage ? (
+                      <div
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                        style={{ backgroundImage: `url('${tool.image}')` }}
+                      />
+                    ) : (
+                      <div
+                        className="absolute inset-0 transition-opacity duration-300"
+                        style={{
+                          background: CAT_PLACEHOLDER[tool.category] ?? "linear-gradient(135deg,#1e1b4b,#0f172a)",
+                          backgroundImage: PLACEHOLDER_PATTERN,
+                        }}
+                      >
+                        {/* Big centered icon as placeholder visual */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span
+                            className="text-6xl opacity-20 group-hover:opacity-30 group-hover:scale-110 transition-all duration-500 select-none"
+                          >
+                            {tool.icon}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Bottom gradient overlay — same for both */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+
+                    {/* Status badge */}
+                    {tool.status && tool.status !== "Ready" && (
+                      <span
+                        className={`absolute top-2.5 right-2.5 z-20 px-2 py-0.5 text-[9px] font-black rounded-full border backdrop-blur-md uppercase tracking-wider ${BADGE[tool.status] ?? ""}`}
+                      >
+                        {tool.status === "Ultimate" ? "PRO" : tool.status}
+                      </span>
+                    )}
+
+                    {/* Bottom-left: icon + title */}
+                    <div className="absolute bottom-2.5 left-3 right-3 z-10">
+                      <div className="flex items-end justify-between gap-2">
+                        <div className="min-w-0">
+                          {hasImage && (
+                            <span className="text-xl drop-shadow-lg leading-none block mb-0.5">
+                              {tool.icon}
+                            </span>
+                          )}
+                          <h2 className="text-sm font-extrabold text-white drop-shadow-md leading-tight truncate group-hover:text-white/90 transition-colors">
+                            {tool.title}
+                          </h2>
+                        </div>
+                        <span
+                          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full border backdrop-blur-sm shrink-0"
+                          style={{ background: catColor + "25", color: catColor, borderColor: catColor + "50" }}
+                        >
+                          {tool.category}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Text Content (same structure for all) ── */}
+                  <div className="flex flex-col flex-1 px-3.5 py-3">
+                    <p
+                      className="text-xs leading-relaxed line-clamp-2 flex-1"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
+                      {tool.description}
+                    </p>
+                    <div
+                      className="mt-2.5 text-xs font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 -translate-y-1 group-hover:translate-y-0 transition-all duration-200"
+                      style={{ color: catColor }}
+                    >
+                      Buka Tool <span className="group-hover:translate-x-0.5 transition-transform inline-block">→</span>
+                    </div>
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </motion.div>
       ) : (
-        <div className="text-center py-20 border border-dashed rounded-3xl" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
-          <p style={{ color: "var(--text-muted)" }}>Tidak ada tool ditemukan.</p>
-          <button onClick={() => {setQuery(""); setActiveCategory("All")}} className="mt-2 underline text-sm" style={{ color: "var(--accent-text)" }}>Reset Filter</button>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center py-20 rounded-3xl border border-dashed"
+          style={{ borderColor: "var(--card-border)" }}
+        >
+          <p className="text-4xl mb-3">🔍</p>
+          <p className="font-semibold mb-2" style={{ color: "var(--text-secondary)" }}>Tidak ada tool ditemukan.</p>
+          <button
+            onClick={() => { setQuery(""); setActiveCategory("All"); }}
+            className="text-sm underline"
+            style={{ color: "var(--accent-text)" }}
+          >
+            Reset Filter
+          </button>
+        </motion.div>
       )}
 
-      {visibleCount < filteredTools.length && (
-        <div className="flex justify-center pt-4">
-          <button
-            onClick={showMore}
-            className="px-6 py-3 font-bold rounded-full transition-all shadow-lg active:scale-95 text-sm border"
+      {/* ── Load More ── */}
+      {hasMore && (
+        <div className="flex justify-center pt-2">
+          <motion.button
+            onClick={() => setVisibleCount(p => p + 8)}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            className="px-8 py-3 font-bold rounded-full text-sm border shadow-lg transition-colors"
             style={{ background: "var(--card-bg)", borderColor: "var(--card-border)", color: "var(--text-primary)" }}
           >
             Load More ({filteredTools.length - visibleCount}) ↓
-          </button>
+          </motion.button>
         </div>
       )}
 
