@@ -5,7 +5,14 @@ import { tools, projects } from "@/lib/data";
 import Link from "next/link";
 import HomeGalleryWidget from "@/components/HomeGalleryWidget";
 import { motion, useInView, Variants } from "framer-motion";
-import { ArrowRight, Code, Sparkles, Terminal } from "lucide-react";
+import { ArrowRight, Code, Sparkles, Terminal, Github } from "lucide-react";
+
+const skills = [
+  "Figma", "FL Studio", "Blender", "Adobe CC", "Clip Studio Paint", "Python", 
+  "Next.js", "TypeScript", "JavaScript", "C++", "Rust", "Ruby", "FastAPI",
+  "PostgreSQL", "Supabase", "React", "Redis", "SQLite", "TensorFlow",
+  "AI Architecture", "Data Modeling", "CSS", "Japanese", "English", "Illustration"
+];
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -86,6 +93,27 @@ export default function Home() {
           </Link>
         </motion.div>
       </section>
+
+      {/* --- SKILLS MARQUEE --- */}
+      <div className="relative w-full overflow-hidden border-y border-slate-800/50 bg-slate-900/30 py-5 mb-20 flex z-10 backdrop-blur-sm">
+        {/* Shadow overlays for smooth edge fading */}
+        <div className="absolute inset-y-0 left-0 w-16 md:w-40 bg-gradient-to-r from-[#0f172a] to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-y-0 right-0 w-16 md:w-40 bg-gradient-to-l from-[#0f172a] to-transparent z-10 pointer-events-none" />
+        
+        <motion.div 
+          className="flex whitespace-nowrap gap-10 pl-10"
+          animate={{ x: ["0%", "-50%"] }}
+          transition={{ repeat: Infinity, ease: "linear", duration: 40 }}
+        >
+          {/* Duplicate the array twice so it forms an infinite smooth loop */}
+          {[...skills, ...skills].map((skill, index) => (
+             <div key={index} className="flex items-center gap-3">
+               <span className="text-emerald-400/80 text-xl">✦</span>
+               <span className="text-slate-300 font-semibold text-sm md:text-base tracking-wide uppercase">{skill}</span>
+             </div>
+          ))}
+        </motion.div>
+      </div>
       
       {/* --- BENTO GRID LAYOUT --- */}
       <motion.div 
@@ -196,30 +224,105 @@ export default function Home() {
            </div>
         </motion.div>
 
-        {/* 5. FEATURED PROJECT (Lebar: 2 kolom) - Mengambil dari projects array */}
-        <motion.div variants={itemVariants} className="md:col-span-2 bg-gradient-to-br from-slate-900/80 to-slate-950/80 rounded-3xl border border-slate-800 p-8 flex flex-col justify-center relative overflow-hidden group">
-             <div className="absolute right-0 bottom-0 w-64 h-64 bg-pink-500/10 rounded-full blur-[80px] group-hover:bg-pink-500/20 transition-colors duration-500"></div>
+        {/* 5. GITHUB STATS (Lebar: 2 kolom) */}
+        <motion.div variants={itemVariants} className="md:col-span-2 bg-slate-900/60 rounded-3xl border border-slate-800 p-6 backdrop-blur-md flex flex-col justify-center relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-blue-600/10 rounded-full blur-[80px] -mr-10 -mt-10 pointer-events-none group-hover:bg-blue-500/20 transition-colors duration-500"></div>
+            
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="font-bold text-xl text-white flex items-center gap-2">
+                <Github className="w-5 h-5 text-blue-400" />
+                GitHub Activity
+              </h2>
+              <Link href="https://github.com/saymaven" target="_blank" className="text-sm font-medium text-slate-400 hover:text-blue-400 flex items-center gap-1 transition-colors">
+                View Profile <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            
+            <div className="w-full flex-1 relative overflow-hidden rounded-xl border border-slate-800/50 hover:border-blue-500/50 transition-colors flex items-center justify-center bg-[#1a1b26]/50">
+               {/* Memanfaatkan API GitHub Readme Activity Graph - Lebih dinamis dan visual */}
+               <img 
+                 src="https://github-readme-activity-graph.vercel.app/graph?username=saymaven&theme=tokyo-night&bg_color=transparent&hide_border=true&area=true" 
+                 alt="Abil's GitHub Activity Graph" 
+                 className="w-full max-w-[500px] h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity scale-105"
+               />
+               <a href="https://github.com/saymaven" target="_blank" className="absolute inset-0 z-10" aria-label="Go to Github Stats"></a>
+            </div>
+        </motion.div>
+
+        {/* 6. FEATURED PROJECT (Lebar: 4 kolom untuk menutup baris bawah) */}
+        <motion.div variants={itemVariants} className="md:col-span-4 bg-gradient-to-br from-slate-900/80 to-slate-950/80 rounded-3xl border border-slate-800 p-8 flex flex-col justify-center relative overflow-hidden group">
+             <div className="absolute right-0 bottom-0 w-[500px] h-[500px] bg-pink-500/10 rounded-full blur-[100px] group-hover:bg-pink-500/20 transition-colors duration-500"></div>
              
-             <div className="relative z-10">
-               <span className="inline-block px-2 py-1 bg-pink-500/20 text-pink-300 text-xs font-bold rounded-md uppercase tracking-wide mb-4 border border-pink-500/20">
-                 Featured Project
-               </span>
-               <h3 className="text-3xl font-extrabold text-white mb-3">{projects[0].title}</h3>
-               <p className="text-slate-400 text-base mb-8 max-w-md">
-                 {projects[0].description}
-               </p>
-               <div className="flex flex-wrap gap-2 mb-6">
-                   {projects[0].tech.map((tech) => (
-                     <span key={tech} className="px-3 py-1.5 bg-slate-800/80 rounded-lg text-xs font-medium text-slate-300 border border-slate-700/50 shadow-sm">
-                       {tech}
-                     </span>
-                   ))}
-               </div>
-               <div className="flex items-center gap-3">
-                 <Link href={projects[0].link} className="text-sm font-bold text-pink-400 hover:text-pink-300 flex items-center gap-1 transition-colors">
-                   View Project <ArrowRight className="w-4 h-4" />
-                 </Link>
-               </div>
+             <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                 {/* Left Content */}
+                 <div>
+                   <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-pink-500/20 text-pink-300 text-xs font-bold rounded-full uppercase tracking-widest mb-6 border border-pink-500/30 shadow-[0_0_15px_rgba(236,72,153,0.3)]">
+                     <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse"></span>
+                     Featured Project
+                   </span>
+                   <h3 className="text-4xl font-extrabold text-white mb-4 drop-shadow-md">{projects[0].title}</h3>
+                   <p className="text-slate-400 py-2 text-base md:text-lg mb-8 max-w-md leading-relaxed">
+                     {projects[0].description}
+                   </p>
+                   <div className="flex flex-wrap gap-2 mb-8">
+                       {projects[0].tech.map((tech) => (
+                         <span key={tech} className="px-4 py-2 bg-slate-800/80 rounded-lg text-xs font-bold text-slate-300 border border-slate-700/50 shadow-sm hover:border-pink-500/50 transition-colors">
+                           {tech}
+                         </span>
+                       ))}
+                   </div>
+                   <div className="flex items-center gap-3">
+                     <Link href={projects[0].link} className="inline-flex group/btn items-center gap-2 px-6 py-3 bg-pink-600 hover:bg-pink-500 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-pink-500/25">
+                       View Project <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                     </Link>
+                     <Link href={projects[0].github} target="_blank" className="p-3 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl border border-slate-700 transition-colors">
+                       <Github className="w-5 h-5" />
+                     </Link>
+                   </div>
+                 </div>
+
+                 {/* Right Visual Mockup (UI Design for Maven Downloader) */}
+                 <div className="hidden md:flex justify-end p-4">
+                    <div className="w-full max-w-md bg-slate-900/90 rounded-2xl border border-slate-700 overflow-hidden shadow-[0_20px_50px_-15px_rgba(0,0,0,0.5)] transform group-hover:-translate-y-2 group-hover:rotate-1 transition-all duration-500">
+                        {/* Fake App Window Header */}
+                        <div className="px-4 py-3 bg-slate-950/80 flex items-center gap-2 border-b border-slate-800">
+                            <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+                            <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+                            <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+                            <div className="ml-4 text-xs font-medium text-slate-500">Maven_Downloader_GUI.exe</div>
+                        </div>
+                        {/* Fake App Content */}
+                        <div className="p-6">
+                            <div className="flex gap-4 mb-6">
+                               <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center shadow-inner">
+                                 <Terminal className="w-8 h-8 text-white" />
+                               </div>
+                               <div className="flex-1">
+                                 <div className="h-4 w-3/4 bg-slate-800 rounded-md mb-2"></div>
+                                 <div className="h-3 w-1/2 bg-slate-800/60 rounded-md"></div>
+                               </div>
+                            </div>
+                            
+                            {/* Fake Download Progress */}
+                            <div className="mb-2 flex justify-between text-xs text-slate-400 font-mono">
+                               <span>Downloading dependencies...</span>
+                               <span className="text-pink-400">75%</span>
+                            </div>
+                            <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                               <div className="h-full bg-pink-500 w-3/4 rounded-full relative">
+                                  <div className="absolute top-0 right-0 bottom-0 w-10 bg-white/20 animate-[pulse_1s_ease-in-out_infinite] skew-x-[-20deg]"></div>
+                               </div>
+                            </div>
+                            
+                            {/* Fake Command Log */}
+                            <div className="mt-6 p-3 bg-slate-950 rounded-lg border border-slate-800/50 font-mono text-[10px] text-emerald-400/80 leading-relaxed">
+                               &gt; Initializing aria2 daemon...<br/>
+                               &gt; Setting custom connections (x=16)<br/>
+                               <span className="text-slate-400">&gt; Waiting for stream metadata...</span>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
              </div>
         </motion.div>
 
