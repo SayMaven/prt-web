@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar"; 
+import Navbar from "@/components/Navbar";
 import ChatWidget from "@/components/ChatWidget";
 import VisitorCounter from "@/components/VisitorCounter";
 import ThemeController from "@/components/ThemeController";
@@ -20,11 +20,11 @@ export const metadata: Metadata = {
   description: "Portfolio Full Stack Developer dan kumpulan tools utilitas gratis.",
   icons: {
     icon: [
-      { url: '/favicon.ico' }, // Pastikan file favicon.ico ada di folder public
-      { url: '/logo.png', type: 'image/png' }, // Pastikan file icon.png ada di folder public
+      { url: '/favicon.ico' },
+      { url: '/logo.png', type: 'image/png' },
     ],
     apple: [
-      { url: '/apple-icon.png' }, // Opsional: untuk icon di iPhone/iPad
+      { url: '/apple-icon.png' },
     ],
   },
   openGraph: {
@@ -48,19 +48,15 @@ export default function RootLayout({
         style={{ backgroundColor: 'var(--page-bg)', color: 'var(--text-primary)' }}
       >
 
-        <div className="fixed z-[100] top-5 right-20 md:top-auto md:right-auto md:bottom-7 md:left-14"> 
+        <div className="fixed z-[100] top-5 right-20 md:top-auto md:right-auto md:bottom-7 md:left-14">
           <VisitorCounter />
         </div>
 
-        {/* --- NAVBAR --- */}
         <Navbar />
 
-        {/* --- KONTEN UTAMA --- */}
         <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 pt-24">
           {children}
         </main>
-
-        {/* --- FOOTER --- */}
         <footer
           className="border-t py-8 mt-auto backdrop-blur-sm"
           style={{ background: 'var(--footer-bg)', borderColor: 'var(--footer-border)' }}
@@ -69,13 +65,10 @@ export default function RootLayout({
             <p>&copy; {new Date().getFullYear()} SayMaven. Dibangun dengan ❤️ for Maya</p>
           </div>
         </footer>
-
-        {/* --- FLOATING THEME CONTROLLER (above ChatWidget) --- */}
-        <div className="fixed bottom-[7.5rem] right-6 z-[200] flex flex-col items-end">
+        <div className="fixed bottom-6 right-24 z-[200]">
           <ThemeController />
         </div>
 
-        {/* --- WIDGET LAINNYA --- */}
         <ChatWidget />
 
       </body>

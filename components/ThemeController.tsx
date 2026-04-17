@@ -67,17 +67,17 @@ export default function ThemeController() {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-col items-end gap-3">
+    <div className="flex flex-row items-end gap-3">
 
       {/* ── Color Picker Panel ── */}
       <AnimatePresence>
         {pickerOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.9 }}
+            initial={{ opacity: 0, y: 16, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.9 }}
+            exit={{ opacity: 0, y: 16, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 400, damping: 28 }}
-            className="rounded-2xl border p-4 backdrop-blur-2xl shadow-2xl w-52"
+            className="absolute bottom-16 right-0 rounded-2xl border p-4 backdrop-blur-2xl shadow-2xl w-52"
             style={{
               background: "var(--card-bg)",
               borderColor: "var(--card-border)",
@@ -132,10 +132,10 @@ export default function ThemeController() {
 
       {/* ── Floating Capsule ── */}
       <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, type: "spring", stiffness: 220, damping: 22 }}
-        className="flex flex-col gap-2 rounded-2xl p-2 backdrop-blur-2xl border shadow-xl"
+        className="relative flex flex-row gap-2 rounded-2xl p-2 backdrop-blur-2xl border shadow-xl"
         style={{
           background: "var(--card-bg)",
           borderColor: "var(--card-border)",
@@ -155,7 +155,7 @@ export default function ThemeController() {
           }
         </button>
 
-        <div className="h-px mx-1" style={{ background: "var(--card-border)" }} />
+        <div className="w-px my-1" style={{ background: "var(--card-border)" }} />
 
         {/* Accent picker toggle */}
         <button
