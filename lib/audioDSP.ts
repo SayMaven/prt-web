@@ -104,20 +104,21 @@ export const applyAdvancedEffect = async (
     const source = ctx.createBufferSource();
     source.buffer = originalBuffer;
 
-    // Merger untuk output akhir
-    const merger = ctx.createChannelMerger(2);
-    merger.connect(ctx.destination);
+    // Master Makeup Gain (mengompensasi penurunan volume keseluruhan)
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 1.2; // Boost 20% secara default agar audio tidak terasa redup
+    masterGain.connect(ctx.destination);
 
     // Dry Signal (Suara Asli)
     const dryGain = ctx.createGain();
-    dryGain.gain.value = 1.0; // Default Dry Full
+    dryGain.gain.value = 1.0; 
     
     // Wet Signal (Suara Efek)
     const wetGain = ctx.createGain();
-    wetGain.gain.value = 0.5; // Default Wet Half
+    wetGain.gain.value = 1.0; 
 
     source.connect(dryGain);
-    dryGain.connect(ctx.destination);
+    dryGain.connect(masterGain);
 
     switch (effectType) {
         case 'parametric_eq':
@@ -128,30 +129,33 @@ export const applyAdvancedEffect = async (
             const mid = ctx.createBiquadFilter(); mid.type = 'peaking'; mid.frequency.value = params?.midFreq || 1000; mid.Q.value = params?.midQ || 0.5; mid.gain.value = params?.midGain || 0;
             const high = ctx.createBiquadFilter(); high.type = 'highshelf'; high.frequency.value = params?.highFreq || 3200; high.gain.value = params?.highGain || 0;
             
-            source.connect(low); low.connect(mid); mid.connect(high); high.connect(ctx.destination);
+            source.connect(low); low.connect(mid); mid.connect(high); high.connect(masterGain);
             break;
 
         case 'reverb':
-            // Params: mix (0-1), decay (1-10), seconds (1-5)
-            const mix = params?.mix || 0.5;
-            wetGain.gain.value = mix;
-            dryGain.gain.value = 1 - mix; // Balance Mix
+            // Menggunakan Constant Power Crossfade (sin/cos) agar volume tidak drop saat mix
+            const rMix = params?.mix ?? 0.5;
+            wetGain.gain.value = Math.sin(rMix * Math.PI / 2);
+            dryGain.gain.value = Math.cos(rMix * Math.PI / 2);
 
             const conv = ctx.createConvolver();
             conv.buffer = createImpulseResponse(originalBuffer.sampleRate, params?.seconds || 2.0, params?.decay || 2.0);
             
             source.connect(conv);
             conv.connect(wetGain);
-            wetGain.connect(ctx.destination);
+            wetGain.connect(masterGain);
+            
+            // Reverb seringkali mengurangi power transient, kita boost sedikit
+            masterGain.gain.value = 1.5; 
             break;
 
         case 'delay':
             const dTime = params?.time || 0.3;
             const dFeedback = params?.feedback || 0.4;
-            const dMix = params?.mix || 0.5;
+            const dMix = params?.mix ?? 0.5;
 
-            wetGain.gain.value = dMix;
-            dryGain.gain.value = 1 - dMix;
+            wetGain.gain.value = Math.sin(dMix * Math.PI / 2);
+            dryGain.gain.value = Math.cos(dMix * Math.PI / 2);
 
             const delay = ctx.createDelay(); delay.delayTime.value = dTime;
             const fb = ctx.createGain(); fb.gain.value = dFeedback;
@@ -162,13 +166,13 @@ export const applyAdvancedEffect = async (
             fb.connect(delay);
             delay.connect(filter);
             filter.connect(wetGain);
-            wetGain.connect(ctx.destination);
+            wetGain.connect(masterGain);
             break;
 
         case 'chorus':
-            const cMix = params?.mix || 0.5;
-            wetGain.gain.value = cMix;
-            dryGain.gain.value = 1 - cMix;
+            const cMix = params?.mix ?? 0.5;
+            wetGain.gain.value = Math.sin(cMix * Math.PI / 2);
+            dryGain.gain.value = Math.cos(cMix * Math.PI / 2);
 
             const cDelay = ctx.createDelay(); cDelay.delayTime.value = 0.03;
             const osc = ctx.createOscillator(); osc.type = 'sine'; osc.frequency.value = params?.rate || 1.5;
@@ -177,7 +181,7 @@ export const applyAdvancedEffect = async (
             osc.connect(oscGain); oscGain.connect(cDelay.delayTime); osc.start(0);
             source.connect(cDelay);
             cDelay.connect(wetGain);
-            wetGain.connect(ctx.destination);
+            wetGain.connect(masterGain);
             break;
 
         case 'distortion':
@@ -185,14 +189,24 @@ export const applyAdvancedEffect = async (
              const distAmount = params?.amount || 50;
              const dist = ctx.createWaveShaper();
              const makeDist = (amount: number) => {
-                const k = amount; const n = 44100; const c = new Float32Array(n); const deg = Math.PI/180;
-                for(let i=0;i<n;++i){ const x = i*2/n-1; c[i] = (3+k)*x*20*deg/(Math.PI+k*Math.abs(x)); }
-                return c;
+                const k = typeof amount === 'number' ? amount : 50;
+                const n = 44100;
+                const curve = new Float32Array(n);
+                const deg = Math.PI / 180;
+                for (let i = 0; i < n; ++i) {
+                  const x = i * 2 / n - 1;
+                  curve[i] = (3 + k) * x * 20 * deg / (Math.PI + k * Math.abs(x));
+                }
+                return curve;
              };
              dist.curve = makeDist(distAmount); 
              dist.oversample = '4x';
+             
              source.connect(dist);
-             dist.connect(ctx.destination);
+             dist.connect(masterGain);
+             
+             // Distortion wave shaper curve ini cenderung menurunkan volume pada amount tinggi
+             masterGain.gain.value = 1.0 + (distAmount / 200); 
              break;
     }
 

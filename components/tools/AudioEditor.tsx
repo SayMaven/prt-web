@@ -66,6 +66,10 @@ export default function AudioEditor() {
     if (typeof window === "undefined") return;
     if (!containerRef.current || !timelineRef.current) return;
 
+    const rootStyle = getComputedStyle(document.documentElement);
+    const accentColor = rootStyle.getPropertyValue('--accent').trim() || "#3b82f6";
+    const textMuted = rootStyle.getPropertyValue('--text-muted').trim() || "#94a3b8";
+    
     const ws = WaveSurfer.create({
       container: containerRef.current,
       height: 200,
@@ -75,8 +79,8 @@ export default function AudioEditor() {
       autoScroll: true,
       dragToSeek: false,
       splitChannels: [
-        { waveColor: "#60a5fa", progressColor: "#1e40af", cursorColor: "#fbbf24" },
-        { waveColor: "#60a5fa", progressColor: "#1e40af", cursorColor: "#fbbf24" }
+        { waveColor: textMuted, progressColor: accentColor, cursorColor: "#fbbf24" },
+        { waveColor: textMuted, progressColor: accentColor, cursorColor: "#fbbf24" }
       ],
     });
 
@@ -84,17 +88,17 @@ export default function AudioEditor() {
         container: timelineRef.current,
         primaryLabelInterval: 5,
         secondaryLabelInterval: 1,
-        style: { color: '#94a3b8', fontSize: '10px' },
+        style: { color: textMuted, fontSize: '10px' },
     }));
 
     ws.registerPlugin(MinimapPlugin.create({
         height: 30,
-        waveColor: '#475569',
-        progressColor: '#94a3b8',
+        waveColor: textMuted,
+        progressColor: accentColor,
     }));
 
     const regions = ws.registerPlugin(RegionsPlugin.create());
-    regions.enableDragSelection({ color: "rgba(59, 130, 246, 0.4)" });
+    regions.enableDragSelection({ color: "rgba(59, 130, 246, 0.3)" });
     
     regions.on('region-created', (newRegion) => {
         regions.getRegions().forEach((region) => { 
@@ -358,15 +362,19 @@ export default function AudioEditor() {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`max-w-6xl mx-auto bg-[#1e1e1e] border rounded-lg shadow-2xl overflow-hidden min-h-[550px] select-none relative outline-none focus:ring-1 focus:ring-blue-500/50 
-            ${isDragging ? 'border-blue-500 ring-2 ring-blue-500/50' : 'border-slate-800'}`}
+        className="max-w-6xl mx-auto border rounded-lg shadow-2xl overflow-hidden min-h-[550px] select-none relative outline-none transition-all"
+        style={{ 
+            background: "var(--card-bg)", 
+            borderColor: isDragging ? "var(--accent)" : "var(--card-border)",
+            boxShadow: isDragging ? "0 0 0 2px var(--accent-subtle)" : "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+        }}
     >
       {/* VISUAL OVERLAY SAAT DRAG */}
       {isDragging && (
-          <div className="absolute inset-0 z-[60] bg-blue-600/20 backdrop-blur-sm flex items-center justify-center border-4 border-dashed border-blue-500 pointer-events-none">
-              <div className="bg-[#1e1e1e] p-6 rounded-xl shadow-2xl text-center">
+          <div className="absolute inset-0 z-[60] backdrop-blur-sm flex items-center justify-center border-4 border-dashed pointer-events-none" style={{ background: "var(--accent-subtle)", borderColor: "var(--accent)" }}>
+              <div className="p-6 rounded-xl shadow-2xl text-center" style={{ background: "var(--card-bg)" }}>
                   <div className="text-4xl mb-2">📂</div>
-                  <h3 className="text-xl font-bold text-white">Drop Audio File Here</h3>
+                  <h3 className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>Drop Audio File Here</h3>
               </div>
           </div>
       )}
@@ -379,7 +387,7 @@ export default function AudioEditor() {
       )}
 
       {/* 1. TOP MENU BAR */}
-      <div ref={menuRef} className="flex px-2 py-1 bg-[#333] border-b border-black text-slate-200 text-sm relative z-50">
+      <div ref={menuRef} className="flex px-2 py-1 border-b text-sm relative z-50" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)", color: "var(--text-primary)" }}>
           
           <MenuDropdown label="File" active={activeMenu === 'file'} onClick={() => setActiveMenu(activeMenu === 'file' ? null : 'file')}>
               <MenuItem label="Open..." onClick={() => fileInputRef.current?.click()} shortcut="Ctrl+O" />
@@ -401,7 +409,7 @@ export default function AudioEditor() {
           </MenuDropdown>
 
           <MenuDropdown label="Effect" active={activeMenu === 'effect'} onClick={() => setActiveMenu(activeMenu === 'effect' ? null : 'effect')}>
-              <div className="px-4 py-1 text-[10px] text-slate-500 font-bold uppercase">Advanced</div>
+              <div className="px-4 py-1 text-[10px] uppercase font-bold" style={{ color: "var(--accent)" }}>Advanced</div>
               <MenuItem label="Change Speed / Tempo..." onClick={() => openEffectModal('speed')} disabled={!file} />
               <MenuItem label="Parametric EQ..." onClick={() => openEffectModal('eq')} disabled={!file} />
               <MenuItem label="Reverb..." onClick={() => openEffectModal('reverb')} disabled={!file} />
@@ -409,7 +417,7 @@ export default function AudioEditor() {
               <MenuItem label="Chorus..." onClick={() => openEffectModal('chorus')} disabled={!file} />
               <MenuItem label="Distortion..." onClick={() => openEffectModal('distortion')} disabled={!file} />
               <Divider />
-              <div className="px-4 py-1 text-[10px] text-slate-500 font-bold uppercase">Instant</div>
+              <div className="px-4 py-1 text-[10px] uppercase font-bold" style={{ color: "var(--accent)" }}>Instant</div>
               <MenuItem label="Normalize" onClick={() => applyInstantEffect('normalize')} disabled={!file} />
               <MenuItem label="Reverse" onClick={() => applyInstantEffect('reverse')} disabled={!file} />
               <MenuItem label="Invert" onClick={() => applyInstantEffect('invert')} disabled={!file} />
@@ -426,47 +434,48 @@ export default function AudioEditor() {
       <input type="file" ref={fileInputRef} className="hidden" accept="audio/*" onChange={handleFileChange} />
 
       {/* 2. TOOLBAR */}
-      <div className="flex items-center gap-2 p-2 bg-[#252526] border-b border-black">
-          <div className="flex bg-[#111] rounded p-1 gap-1">
-            <button onClick={() => {if(wavesurfer?.isPlaying()) wavesurfer.pause(); else wavesurfer?.play()}} className="p-1.5 hover:bg-slate-700 rounded text-green-400 w-8 h-8 flex items-center justify-center">{isPlaying ? "⏸" : "▶"}</button>
-            <button onClick={() => {wavesurfer?.stop(); wavesurfer?.seekTo(0)}} className="p-1.5 hover:bg-slate-700 rounded text-red-400 w-8 h-8 flex items-center justify-center">⏹</button>
-            <button onClick={() => setIsLooping(!isLooping)} className={`p-1.5 rounded w-8 h-8 flex items-center justify-center ${isLooping ? 'bg-blue-600 text-white' : 'hover:bg-slate-700 text-slate-400'}`}>🔁</button>
+      <div className="flex items-center gap-2 p-2 border-b" style={{ background: "var(--page-bg)", borderColor: "var(--card-border)" }}>
+          <div className="flex rounded p-1 gap-1" style={{ background: "var(--card-bg)" }}>
+            <button onClick={() => {if(wavesurfer?.isPlaying()) wavesurfer.pause(); else wavesurfer?.play()}} className="p-1.5 rounded w-8 h-8 flex items-center justify-center transition-colors" style={{ color: isPlaying ? "var(--accent)" : "var(--text-secondary)" }} onMouseEnter={e => e.currentTarget.style.background = "var(--page-bg)"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>{isPlaying ? "⏸" : "▶"}</button>
+            <button onClick={() => {wavesurfer?.stop(); wavesurfer?.seekTo(0)}} className="p-1.5 rounded w-8 h-8 flex items-center justify-center transition-colors text-red-400" onMouseEnter={e => e.currentTarget.style.background = "var(--page-bg)"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>⏹</button>
+            <button onClick={() => setIsLooping(!isLooping)} className="p-1.5 rounded w-8 h-8 flex items-center justify-center transition-colors" style={{ background: isLooping ? "var(--accent)" : "transparent", color: isLooping ? "var(--accent-text)" : "var(--text-secondary)" }} onMouseEnter={e => e.currentTarget.style.background = isLooping ? "var(--accent)" : "var(--page-bg)"} onMouseLeave={e => e.currentTarget.style.background = isLooping ? "var(--accent)" : "transparent"}>🔁</button>
           </div>
-          <div className="w-[1px] h-6 bg-slate-700"></div>
-          <div className="flex bg-[#111] rounded p-1 gap-1">
-             <button onClick={handleUndo} disabled={!canUndo} className="p-1.5 hover:bg-slate-700 rounded text-white disabled:opacity-30">↩️</button>
-             <button onClick={handleRedo} disabled={!canRedo} className="p-1.5 hover:bg-slate-700 rounded text-white disabled:opacity-30">↪️</button>
+          <div className="w-[1px] h-6" style={{ background: "var(--card-border)" }}></div>
+          <div className="flex rounded p-1 gap-1" style={{ background: "var(--card-bg)" }}>
+             <button onClick={handleUndo} disabled={!canUndo} className="p-1.5 rounded disabled:opacity-30 transition-colors" style={{ color: "var(--text-secondary)" }} onMouseEnter={e => e.currentTarget.style.background = "var(--page-bg)"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>↩️</button>
+             <button onClick={handleRedo} disabled={!canRedo} className="p-1.5 rounded disabled:opacity-30 transition-colors" style={{ color: "var(--text-secondary)" }} onMouseEnter={e => e.currentTarget.style.background = "var(--page-bg)"} onMouseLeave={e => e.currentTarget.style.background = "transparent"}>↪️</button>
           </div>
-          <div className="w-[1px] h-6 bg-slate-700"></div>
-          <div className="flex items-center gap-2 px-2">
-              <button onClick={() => applyZoom(zoom - 20)} className="text-white hover:text-blue-400">🔍-</button>
-              <input type="range" min="10" max="1000" value={zoom} onChange={(e) => applyZoom(Number(e.target.value))} className="w-24 h-1 bg-slate-600 rounded-lg appearance-none cursor-pointer accent-blue-500"/>
-              <button onClick={() => applyZoom(zoom + 20)} className="text-white hover:text-blue-400">🔍+</button>
+          <div className="w-[1px] h-6" style={{ background: "var(--card-border)" }}></div>
+          <div className="flex items-center gap-2 px-2" style={{ color: "var(--text-secondary)" }}>
+              <button onClick={() => applyZoom(zoom - 20)} className="transition-colors hover:text-[color:var(--accent)]">🔍-</button>
+              <input type="range" min="10" max="1000" value={zoom} onChange={(e) => applyZoom(Number(e.target.value))} className="w-24 h-1 rounded-lg appearance-none cursor-pointer" style={{ background: "var(--card-border)", accentColor: "var(--accent)" }}/>
+              <button onClick={() => applyZoom(zoom + 20)} className="transition-colors hover:text-[color:var(--accent)]">🔍+</button>
           </div>
-          <div className="flex-1 text-right font-mono text-green-500">{formatTime(currentTime)}</div>
+          <div className="flex-1 text-right font-mono font-bold" style={{ color: "var(--accent)" }}>{formatTime(currentTime)}</div>
       </div>
 
       {/* 3. EDITOR AREA */}
-      <div className="relative bg-[#111] min-h-[300px] flex flex-col">
+      <div className="relative min-h-[300px] flex flex-col" style={{ background: "var(--page-bg)" }}>
            <div 
              ref={timelineRef} 
              onClick={handleTimelineClick}
-             className="w-full h-8 bg-[#1e1e1e] border-b border-slate-700 relative z-20 cursor-pointer overflow-visible"
+             className="w-full h-8 border-b relative z-20 cursor-pointer overflow-visible"
+             style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}
            ></div>
            
            <div className="relative flex-1 py-4 group overflow-hidden cursor-text z-10">
-               <div className="absolute top-1/2 left-0 w-full h-[1px] bg-slate-800 z-0"></div>
+               <div className="absolute top-1/2 left-0 w-full h-[1px] z-0" style={{ background: "var(--card-border)" }}></div>
                <div ref={containerRef} className="z-10 relative"></div>
            </div>
 
-           {!file && <div className="absolute inset-0 flex items-center justify-center text-slate-500 pointer-events-none">Drop audio here</div>}
+           {!file && <div className="absolute inset-0 flex items-center justify-center pointer-events-none" style={{ color: "var(--text-muted)" }}>Drop audio here</div>}
       </div>
 
       {/* 4. MODALS (EFFECT SETTINGS) */}
       {activeModal && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in">
-              <div className="bg-[#252526] border border-slate-600 p-6 rounded-lg shadow-2xl w-80 text-center">
-                  <h3 className="text-white font-bold mb-4 capitalize">{activeModal.replace('_', ' ')} Settings</h3>
+              <div className="border p-6 rounded-lg shadow-2xl w-80 text-center" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
+                  <h3 className="font-bold mb-4 capitalize" style={{ color: "var(--text-primary)" }}>{activeModal.replace('_', ' ')} Settings</h3>
                   
                   {activeModal === 'speed' && renderSlider("Speed %", "percent", -90, 100, 5, "%")}
                   
@@ -505,8 +514,8 @@ export default function AudioEditor() {
                   {activeModal === 'distortion' && renderSlider("Amount", "amount", 0, 400, 10)}
 
                   <div className="flex justify-end gap-2 mt-4">
-                      <button onClick={() => setActiveModal(null)} className="px-3 py-1 bg-slate-700 text-white rounded text-sm hover:bg-slate-600">Cancel</button>
-                      <button onClick={applyEffectFromModal} className="px-3 py-1 bg-blue-600 text-white rounded font-bold text-sm hover:bg-blue-500">Apply</button>
+                      <button onClick={() => setActiveModal(null)} className="px-3 py-1 rounded text-sm transition-colors" style={{ background: "var(--page-bg)", color: "var(--text-primary)" }} onMouseEnter={e => e.currentTarget.style.opacity="0.8"} onMouseLeave={e => e.currentTarget.style.opacity="1"}>Cancel</button>
+                      <button onClick={applyEffectFromModal} className="px-3 py-1 text-white rounded font-bold text-sm transition-colors" style={{ background: "var(--accent)" }} onMouseEnter={e => e.currentTarget.style.opacity="0.8"} onMouseLeave={e => e.currentTarget.style.opacity="1"}>Apply</button>
                   </div>
               </div>
           </div>
@@ -518,17 +527,36 @@ export default function AudioEditor() {
 // --- SUB-COMPONENTS ---
 const MenuDropdown = ({ label, active, onClick, children }: any) => (
     <div className="relative">
-        <button className={`px-3 py-1 rounded text-sm ${active ? 'bg-blue-600' : 'hover:bg-slate-700'}`} onClick={(e) => { e.stopPropagation(); onClick(); }}>
+        <button 
+            className="px-3 py-1 rounded text-sm transition-colors" 
+            style={{ 
+                background: active ? "var(--accent)" : "transparent",
+                color: active ? "var(--accent-text)" : "var(--text-primary)"
+            }} 
+            onMouseEnter={e => { if(!active) e.currentTarget.style.background = "var(--page-bg)" }}
+            onMouseLeave={e => { if(!active) e.currentTarget.style.background = "transparent" }}
+            onClick={(e) => { e.stopPropagation(); onClick(); }}
+        >
             {label}
         </button>
-        {active && <div className="absolute top-full left-0 bg-[#252526] border border-slate-700 shadow-xl min-w-[180px] z-50 py-1 rounded-b">{children}</div>}
+        {active && <div className="absolute top-full left-0 border shadow-xl min-w-[180px] z-50 py-1 rounded-b" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>{children}</div>}
     </div>
 );
 
 const MenuItem = ({ label, onClick, disabled, shortcut }: any) => (
-    <button className={`w-full text-left px-4 py-1.5 text-xs flex justify-between ${disabled ? 'text-slate-600 cursor-not-allowed' : 'hover:bg-blue-600 text-slate-200'}`} onClick={onClick} disabled={disabled}>
-        <span>{label}</span>{shortcut && <span className="text-slate-500">{shortcut}</span>}
+    <button 
+        className="w-full text-left px-4 py-1.5 text-xs flex justify-between transition-colors" 
+        style={{ 
+            color: disabled ? "var(--text-muted)" : "var(--text-primary)",
+            cursor: disabled ? "not-allowed" : "pointer"
+        }} 
+        onMouseEnter={e => { if(!disabled) { e.currentTarget.style.background = "var(--accent)"; e.currentTarget.style.color = "var(--accent-text)"; } }}
+        onMouseLeave={e => { if(!disabled) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--text-primary)"; } }}
+        onClick={onClick} 
+        disabled={disabled}
+    >
+        <span>{label}</span>{shortcut && <span style={{ opacity: 0.7 }}>{shortcut}</span>}
     </button>
 );
 
-const Divider = () => <div className="h-[1px] bg-slate-700 my-1 mx-2"></div>;
+const Divider = () => <div className="h-[1px] my-1 mx-2" style={{ background: "var(--card-border)" }}></div>;
