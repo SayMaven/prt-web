@@ -48,7 +48,7 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-1">
           <NavLink href="/" label="Home" />
-          <NavLink href="/portfolio" label="Portfolio" />
+          <NavLink href="/projects" label="Projects" />
           <NavLink href="/tools" label="Tools" />
           <NavLink href="/gallery" label="Gallery" />
           <a
@@ -70,9 +70,9 @@ export default function Navbar() {
           aria-label="Toggle Menu"
         >
           {isOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="18" y2="18" /></svg>
           )}
         </button>
       </div>
@@ -84,7 +84,7 @@ export default function Navbar() {
           style={{ background: "var(--nav-bg)", borderColor: "var(--nav-border)" }}
         >
           <NavLink href="/" label="Home" />
-          <NavLink href="/portfolio" label="Portfolio" />
+          <NavLink href="/projects" label="Projects" />
           <NavLink href="/tools" label="Tools" />
           <NavLink href="/gallery" label="Gallery" />
           <a

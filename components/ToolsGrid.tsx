@@ -8,41 +8,30 @@ import { Search, Sparkles, Zap, Layers, Cpu, Wrench, Film } from "lucide-react";
 
 /* ── Constants ─────────────────────────────────────────── */
 const CATEGORIES = [
-  { label: "All",          icon: Layers,   color: "var(--accent)" },
-  { label: "Anime",        icon: Sparkles, color: "#ec4899" },
-  { label: "Dev",          icon: Cpu,      color: "#3b82f6" },
-  { label: "Design",       icon: Film,     color: "#a855f7" },
-  { label: "Productivity", icon: Zap,      color: "#f59e0b" },
-  { label: "Utility",      icon: Wrench,   color: "#10b981" },
+  { label: "All", icon: Layers, color: "var(--accent)" },
+  { label: "Anime", icon: Sparkles, color: "#ec4899" },
+  { label: "Dev", icon: Cpu, color: "#3b82f6" },
+  { label: "Design", icon: Film, color: "#a855f7" },
+  { label: "Productivity", icon: Zap, color: "#f59e0b" },
+  { label: "Utility", icon: Wrench, color: "#10b981" },
 ];
 
 const CAT_COLOR: Record<string, string> = {
-  Anime:        "#ec4899",
-  Dev:          "#3b82f6",
-  Design:       "#a855f7",
+  Anime: "#ec4899",
+  Dev: "#3b82f6",
+  Design: "#a855f7",
   Productivity: "#f59e0b",
-  Utility:      "#10b981",
-  Media:        "#ef4444",
-};
-
-// Placeholder gradient for tools without a Cloudinary image yet
-// Swap out by just adding `image: "url"` in lib/data.ts
-const CAT_PLACEHOLDER: Record<string, string> = {
-  Anime:        "linear-gradient(135deg, #500724 0%, #1e1b4b 100%)",
-  Dev:          "linear-gradient(135deg, #0c1a3a 0%, #0f172a 100%)",
-  Design:       "linear-gradient(135deg, #3b0764 0%, #1e1b4b 100%)",
-  Productivity: "linear-gradient(135deg, #451a03 0%, #0f172a 100%)",
-  Utility:      "linear-gradient(135deg, #022c22 0%, #0f172a 100%)",
-  Media:        "linear-gradient(135deg, #500000 0%, #0f172a 100%)",
+  Utility: "#10b981",
+  Media: "#ef4444",
 };
 
 // Placeholder dot-pattern SVG: subtle grid pattern
-const PLACEHOLDER_PATTERN = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/g%3E%3C/svg%3E")`;
+const PLACEHOLDER_PATTERN = `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23888888' fill-opacity='0.08'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/g%3E%3C/svg%3E")`;
 
 const BADGE: Record<string, string> = {
-  Hot:      "bg-orange-500/20 text-orange-400 border-orange-500/30",
-  Ultimate: "bg-purple-500/20 text-purple-400 border-purple-500/30",
-  New:      "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+  Hot: "bg-orange-500/10 text-orange-500 border-orange-500/50 shadow-orange-500/20",
+  Ultimate: "bg-purple-500/10 text-purple-500 border-purple-500/50 shadow-purple-500/20",
+  New: "bg-emerald-500/10 text-emerald-500 border-emerald-500/50 shadow-emerald-500/20",
 };
 
 /* ── Framer Motion variants ─────────────────────────────── */
@@ -53,12 +42,12 @@ const containerVariants: Variants = {
 
 const cardVariants: Variants = {
   hidden: { opacity: 0, y: 28, scale: 0.95 },
-  show:   { opacity: 1, y: 0,  scale: 1, transition: { type: "spring", stiffness: 120, damping: 18 } },
+  show: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 120, damping: 18 } },
 };
 
 /* ── Component ──────────────────────────────────────────── */
 export default function ToolsGrid() {
-  const [query, setQuery]               = useState("");
+  const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [visibleCount, setVisibleCount] = useState(12);
 
@@ -70,23 +59,23 @@ export default function ToolsGrid() {
         (activeCategory === "All" || t.category === activeCategory)
       );
     }),
-  [query, activeCategory]);
+    [query, activeCategory]);
 
   const visibleTools = filteredTools.slice(0, visibleCount);
-  const hasMore      = visibleCount < filteredTools.length;
+  const hasMore = visibleCount < filteredTools.length;
 
   return (
     <div className="space-y-7">
 
       {/* ── Sticky Filter + Search ── */}
       <div
-        className="sticky top-16 z-30 rounded-2xl border px-4 py-3 backdrop-blur-xl shadow-xl"
+        className="sticky top-16 z-30 rounded-2xl border px-4 py-3 backdrop-blur-xl shadow-xl w-full max-w-full"
         style={{ background: "var(--nav-bg)", borderColor: "var(--card-border)" }}
       >
-        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between w-full max-w-full">
 
           {/* Category chips */}
-          <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0 scrollbar-hide w-full max-w-full">
             {CATEGORIES.map(({ label, icon: Icon, color }) => {
               const active = activeCategory === label;
               return (
@@ -144,7 +133,7 @@ export default function ToolsGrid() {
           variants={containerVariants}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
         >
           {visibleTools.map(tool => {
             const catColor = CAT_COLOR[tool.category] ?? "#6366f1";
@@ -154,46 +143,46 @@ export default function ToolsGrid() {
               <motion.div key={tool.id} variants={cardVariants} className="flex">
                 <Link
                   href={tool.link}
-                  className="group flex flex-col w-full rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 shadow-md"
+                  className="group flex flex-col w-full rounded-[2rem] overflow-hidden border-2 transition-all duration-500 hover:-translate-y-2 shadow-sm hover:shadow-2xl"
                   style={{ borderColor: "var(--card-border)", background: "var(--card-bg)" }}
                   onMouseEnter={e => {
                     const el = e.currentTarget as HTMLElement;
-                    el.style.borderColor = catColor + "80";
-                    el.style.boxShadow   = `0 12px 36px ${catColor}28`;
+                    el.style.borderColor = catColor;
+                    el.style.boxShadow = `0 25px 50px -12px ${catColor}30`;
                   }}
                   onMouseLeave={e => {
                     const el = e.currentTarget as HTMLElement;
                     el.style.borderColor = "var(--card-border)";
-                    el.style.boxShadow   = "";
+                    el.style.boxShadow = "";
                   }}
                 >
-                  {/* ── Visual Area (fixed height — always the same) ── */}
-                  <div className="relative h-36 overflow-hidden flex-shrink-0">
+                  {/* ── Visual Area ── */}
+                  <div className="relative h-44 overflow-hidden flex-shrink-0 border-b-2 transition-colors duration-500" style={{ borderColor: "var(--card-border)" }}>
 
                     {/* Top accent stripe */}
                     <div
-                      className="absolute top-0 inset-x-0 h-0.5 z-20"
+                      className="absolute top-0 inset-x-0 h-1.5 z-20 opacity-80"
                       style={{ background: catColor }}
                     />
 
-                    {/* Background: real image OR gradient placeholder */}
+                    {/* Background: real image OR dynamic light/dark placeholder */}
                     {hasImage ? (
                       <div
-                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+                        className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
                         style={{ backgroundImage: `url('${tool.image}')` }}
                       />
                     ) : (
                       <div
-                        className="absolute inset-0 transition-opacity duration-300"
+                        className="absolute inset-0 transition-opacity duration-300 flex items-center justify-center"
                         style={{
-                          background: CAT_PLACEHOLDER[tool.category] ?? "linear-gradient(135deg,#1e1b4b,#0f172a)",
-                          backgroundImage: PLACEHOLDER_PATTERN,
+                          background: `${PLACEHOLDER_PATTERN}, radial-gradient(circle at bottom right, ${catColor}25 0%, var(--card-bg) 100%)`,
                         }}
                       >
                         {/* Big centered icon as placeholder visual */}
                         <div className="absolute inset-0 flex items-center justify-center">
                           <span
-                            className="text-6xl opacity-20 group-hover:opacity-30 group-hover:scale-110 transition-all duration-500 select-none"
+                            className="text-7xl opacity-20 group-hover:opacity-100 group-hover:scale-110 group-hover:-translate-y-2 transition-all duration-500 select-none drop-shadow-xl"
+                            style={{ filter: `drop-shadow(0 10px 20px ${catColor}50)` }}
                           >
                             {tool.icon}
                           </span>
@@ -201,54 +190,48 @@ export default function ToolsGrid() {
                       </div>
                     )}
 
-                    {/* Bottom gradient overlay — same for both */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
-
                     {/* Status badge */}
                     {tool.status && tool.status !== "Ready" && (
                       <span
-                        className={`absolute top-2.5 right-2.5 z-20 px-2 py-0.5 text-[9px] font-black rounded-full border backdrop-blur-md uppercase tracking-wider ${BADGE[tool.status] ?? ""}`}
+                        className={`absolute top-4 left-4 z-20 px-3 py-1 text-[10px] font-black rounded-full border backdrop-blur-md uppercase tracking-wider shadow-lg ${BADGE[tool.status] ?? ""}`}
                       >
                         {tool.status === "Ultimate" ? "PRO" : tool.status}
                       </span>
                     )}
 
-                    {/* Bottom-left: icon + title */}
-                    <div className="absolute bottom-2.5 left-3 right-3 z-10">
-                      <div className="flex items-end justify-between gap-2">
-                        <div className="min-w-0">
-                          {hasImage && (
-                            <span className="text-xl drop-shadow-lg leading-none block mb-0.5">
-                              {tool.icon}
-                            </span>
-                          )}
-                          <h2 className="text-sm font-extrabold text-white drop-shadow-md leading-tight truncate group-hover:text-white/90 transition-colors">
-                            {tool.title}
-                          </h2>
-                        </div>
-                        <span
-                          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full border backdrop-blur-sm shrink-0"
-                          style={{ background: catColor + "25", color: catColor, borderColor: catColor + "50" }}
-                        >
-                          {tool.category}
-                        </span>
-                      </div>
-                    </div>
+                    {/* Floating Category Badge */}
+                    <span
+                      className="absolute bottom-3 right-3 z-30 text-[9px] sm:text-[10px] font-extrabold px-3 py-1.5 rounded-full border-2 shadow-sm uppercase tracking-widest transition-transform group-hover:-translate-y-1"
+                      style={{ background: "var(--card-bg)", color: catColor, borderColor: catColor }}
+                    >
+                      {tool.category}
+                    </span>
                   </div>
 
-                  {/* ── Text Content (same structure for all) ── */}
-                  <div className="flex flex-col flex-1 px-3.5 py-3">
+                  {/* ── Text Content ── */}
+                  <div className="flex flex-col flex-1 p-5 sm:p-6 relative">
+                    <div className="flex justify-between items-start mb-3">
+                      <h2 className="text-lg sm:text-xl font-extrabold group-hover:underline transition-colors" style={{ color: "var(--text-primary)" }}>
+                        {tool.title}
+                      </h2>
+                    </div>
                     <p
-                      className="text-xs leading-relaxed line-clamp-2 flex-1"
+                      className="text-xs sm:text-sm leading-relaxed line-clamp-2 font-medium mb-6"
                       style={{ color: "var(--text-secondary)" }}
                     >
                       {tool.description}
                     </p>
-                    <div
-                      className="mt-2.5 text-xs font-semibold flex items-center gap-1 opacity-0 group-hover:opacity-100 -translate-y-1 group-hover:translate-y-0 transition-all duration-200"
-                      style={{ color: catColor }}
-                    >
-                      Buka Tool <span className="group-hover:translate-x-0.5 transition-transform inline-block">→</span>
+                    
+                    <div className="mt-auto pt-4 border-t flex items-center justify-between transition-colors duration-300" style={{ borderColor: "var(--card-border)" }}>
+                      <span className="text-xs font-bold uppercase tracking-widest opacity-70 group-hover:opacity-100 transition-opacity" style={{ color: catColor }}>
+                        Buka Tool
+                      </span>
+                      <div 
+                        className="w-8 h-8 rounded-full flex items-center justify-center border shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-45"
+                        style={{ background: "var(--card-bg)", borderColor: "var(--card-border)", color: "var(--text-primary)" }}
+                      >
+                        <span className="text-sm font-black">↗</span>
+                      </div>
                     </div>
                   </div>
                 </Link>

@@ -11,7 +11,8 @@ const DICTIONARIES = {
     "hujan", "kopi", "senja", "malam", "pagi", "siang", "makan", "minum", "tidur",
     "jalan", "lari", "baca", "tulis", "dengar", "lihat", "rasa", "pikir", "buat",
     "karya", "seni", "musik", "lagu", "nada", "irama", "hidup", "mati", "cinta",
-    "bahasa", "dunia", "langit", "bumi", "laut", "gunung", "kota", "desa"
+    "bahasa", "dunia", "langit", "bumi", "laut", "gunung", "kota", "desa", "waktu",
+    "angin", "api", "air", "tanah", "ruang", "kawan", "teman", "musuh", "sekolah"
   ],
   en: [
     "code", "react", "nextjs", "typescript", "deploy", "server", "client", "function", 
@@ -20,7 +21,8 @@ const DICTIONARIES = {
     "component", "hook", "state", "effect", "render", "build", "pixel", "quality",
     "keyboard", "mouse", "monitor", "laptop", "coffee", "bug", "feature", "async",
     "await", "promise", "import", "export", "default", "class", "return", "void",
-    "public", "private", "protected", "static", "final", "try", "catch", "throw"
+    "public", "private", "protected", "static", "final", "try", "catch", "throw",
+    "interface", "type", "module", "node", "package", "json", "git", "commit", "push"
   ],
   jp: [
     "watashi", "anata", "kare", "kanojo", "arigatou", "sayonara", "konnichiwa", "ohayou",
@@ -230,18 +232,19 @@ export default function TypingTest() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto font-mono select-none">
+    <div className="max-w-5xl mx-auto font-mono select-none flex flex-col items-center">
       
-      {/* --- TOOLBAR KONFIGURASI --- */}
-      <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-4 mb-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
+      {/* --- TOOLBAR KONFIGURASI (Monkeytype style) --- */}
+      <div className="inline-flex flex-wrap justify-center items-center gap-4 bg-[color:var(--card-bg)] border border-[color:var(--card-border)] rounded-full px-6 py-2.5 mb-10 shadow-sm text-xs md:text-sm font-bold tracking-widest uppercase transition-all">
         
         {/* Kiri: Bahasa */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center border-r border-[color:var(--card-border)] pr-4">
             {(["en", "id", "jp"] as Language[]).map((l) => (
                 <button
                     key={l}
                     onClick={() => setLang(l)}
-                    className={`px-3 py-1 rounded transition-colors ${lang === l ? "text-blue-400 font-bold bg-blue-900/20" : "text-slate-500 hover:text-slate-300"}`}
+                    className="px-2 py-1 rounded-md transition-colors"
+                    style={lang === l ? { color: "var(--accent)" } : { color: "var(--text-muted)" }}
                 >
                     {l === "en" ? "ENG" : l === "id" ? "IND" : "JPN"}
                 </button>
@@ -249,28 +252,31 @@ export default function TypingTest() {
         </div>
 
         {/* Tengah: Mode */}
-        <div className="flex items-center bg-slate-950 rounded-lg p-1 border border-slate-800">
+        <div className="flex items-center gap-2 border-r border-[color:var(--card-border)] pr-4">
             <button 
                 onClick={() => { setMode("time"); setConfigValue(30); }}
-                className={`px-4 py-1 rounded ${mode === "time" ? "bg-slate-800 text-white shadow" : "text-slate-500"}`}
+                className="px-2 py-1 rounded-md transition-colors"
+                style={mode === "time" ? { color: "var(--accent)" } : { color: "var(--text-muted)" }}
             >
-                Time
+                TIME
             </button>
             <button 
                 onClick={() => { setMode("words"); setConfigValue(25); }}
-                className={`px-4 py-1 rounded ${mode === "words" ? "bg-slate-800 text-white shadow" : "text-slate-500"}`}
+                className="px-2 py-1 rounded-md transition-colors"
+                style={mode === "words" ? { color: "var(--accent)" } : { color: "var(--text-muted)" }}
             >
-                Words
+                WORDS
             </button>
         </div>
 
         {/* Kanan: Opsi Value */}
-        <div className="flex gap-2 text-slate-500 font-medium">
+        <div className="flex gap-2">
             {(mode === "time" ? [15, 30, 60, 120] : [10, 25, 50, 100]).map((val) => (
                 <button
                     key={val}
                     onClick={() => setConfigValue(val)}
-                    className={`px-2 hover:text-white transition-colors ${configValue === val ? "text-yellow-400 font-bold" : ""}`}
+                    className="px-2 py-1 rounded-md transition-colors"
+                    style={configValue === val ? { color: "var(--accent)" } : { color: "var(--text-muted)" }}
                 >
                     {val}
                 </button>
@@ -279,60 +285,48 @@ export default function TypingTest() {
 
       </div>
 
-      {/* --- STATS DISPLAY --- */}
-      <div className="flex justify-between items-end mb-4 px-4">
-        {/* Timer Display */}
-        <div className="text-4xl font-bold text-yellow-400">
+      {/* --- STATS & TIMER DISPLAY --- */}
+      <div className="w-full flex justify-between items-end mb-4 px-2" style={{ opacity: isActive && !isFinished ? 1 : 0.5, transition: 'opacity 0.3s ease' }}>
+        <div className="text-3xl font-black" style={{ color: "var(--accent)" }}>
             {mode === "time" ? timeLeft : timeElapsed}
-            <span className="text-lg text-slate-500 ml-1">{mode === "time" ? "s" : "s"}</span>
-        </div>
-
-        <div className="flex gap-8 text-xl">
-           <div className="flex flex-col items-center">
-             <span className="text-xs text-slate-500 uppercase">WPM</span>
-             <span className="text-white">{wpm}</span>
-           </div>
-           <div className="flex flex-col items-center">
-             <span className="text-xs text-slate-500 uppercase">Accuracy</span>
-             <span className={`${accuracy < 100 ? 'text-red-400' : 'text-green-400'} transition-colors duration-300`}>
-                {accuracy}%
-             </span>
-           </div>
+            <span className="text-base font-bold ml-1" style={{ color: "var(--text-muted)" }}>s</span>
         </div>
       </div>
 
       {/* --- GAME AREA --- */}
       <div 
         onClick={handleAreaClick}
-        className="relative bg-slate-900/50 border border-slate-700 rounded-2xl p-8 min-h-[250px] cursor-text group overflow-hidden shadow-inner"
+        className="relative w-full rounded-3xl min-h-[250px] cursor-text group overflow-hidden"
       >
         {/* Result Overlay */}
         {isFinished && (
-            <div className="absolute inset-0 bg-slate-950/95 z-30 flex flex-col items-center justify-center rounded-2xl animate-in fade-in duration-300">
-                <div className="text-slate-400 text-sm uppercase tracking-widest mb-2">Test Complete</div>
-                <div className="text-7xl font-bold text-yellow-400 mb-2">{wpm} <span className="text-2xl text-slate-500">WPM</span></div>
+            <div className="absolute inset-0 z-30 flex flex-col items-center justify-center rounded-3xl animate-in zoom-in-95 duration-300 backdrop-blur-xl border shadow-2xl" style={{ background: "var(--nav-bg)", borderColor: "var(--card-border)" }}>
+                <div className="text-xs font-bold uppercase tracking-widest mb-4 px-3 py-1 rounded-full border" style={{ color: "var(--text-secondary)", borderColor: "var(--card-border)" }}>Test Complete</div>
+                <div className="text-8xl font-black mb-2" style={{ color: "var(--accent)" }}>{wpm}</div>
+                <div className="text-xl font-bold uppercase tracking-widest mb-8" style={{ color: "var(--text-muted)" }}>WPM</div>
                 
-                <div className="flex gap-8 mb-8 text-center">
+                <div className="flex gap-10 mb-10 text-center">
                     <div>
-                        <div className="text-2xl text-white font-bold">{accuracy}%</div>
-                        <div className="text-xs text-slate-500">Accuracy</div>
+                        <div className="text-3xl font-extrabold" style={{ color: "var(--text-primary)" }}>{accuracy}%</div>
+                        <div className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: "var(--text-muted)" }}>Accuracy</div>
                     </div>
                     <div>
-                        <div className="text-2xl text-white font-bold">{totalErrors}</div>
-                        <div className="text-xs text-slate-500">Mistakes</div>
+                        <div className="text-3xl font-extrabold" style={{ color: "var(--text-primary)" }}>{totalErrors}</div>
+                        <div className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: "var(--text-muted)" }}>Mistakes</div>
                     </div>
                     <div>
-                        <div className="text-2xl text-white font-bold">{mode === "time" ? configValue : timeElapsed}s</div>
-                        <div className="text-xs text-slate-500">Time</div>
+                        <div className="text-3xl font-extrabold" style={{ color: "var(--text-primary)" }}>{mode === "time" ? configValue : timeElapsed}s</div>
+                        <div className="text-[10px] font-bold uppercase tracking-widest mt-1" style={{ color: "var(--text-muted)" }}>Time</div>
                     </div>
                 </div>
 
                 <button 
                     onClick={resetGame}
-                    className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-full font-bold transition-all hover:scale-105 shadow-lg shadow-blue-500/20 flex items-center gap-2"
+                    className="px-8 py-3 rounded-full font-bold transition-all hover:scale-105 flex items-center gap-3 text-sm shadow-xl"
+                    style={{ background: "var(--accent)", color: "var(--page-bg)" }}
                 >
                     <span>Restart Test</span>
-                    <span className="bg-blue-500 px-2 py-0.5 rounded text-xs border border-blue-400">TAB</span>
+                    <span className="px-2 py-0.5 rounded font-bold text-[10px]" style={{ background: "var(--page-bg)", color: "var(--accent)" }}>TAB</span>
                 </button>
             </div>
         )}
@@ -349,18 +343,18 @@ export default function TypingTest() {
         />
 
         {/* Text Rendering */}
-        <div className="text-2xl md:text-3xl leading-relaxed break-words font-medium">
+        <div className={`text-2xl md:text-3xl leading-[1.6] break-words font-medium transition-all duration-300 ${isFinished ? 'blur-sm opacity-30' : ''}`} style={{ color: "var(--text-muted)" }}>
           {text.split("").map((char, index) => {
-            let color = "text-slate-600";
+            let textColor = "";
             let bgColor = "";
             let isCurrent = false;
 
             if (index < userInput.length) {
                 if (userInput[index] === char) {
-                    color = "text-slate-100";
+                    textColor = "var(--text-primary)";
                 } else {
-                    color = "text-red-500";
-                    if (char === " ") bgColor = "bg-red-500/20 rounded";
+                    textColor = "#ef4444"; // red for error
+                    if (char === " ") bgColor = "rgba(239, 68, 68, 0.2)";
                 }
             } else if (index === userInput.length) {
                 isCurrent = true;
@@ -369,23 +363,21 @@ export default function TypingTest() {
             return (
               <span 
                 key={index} 
-                className={`relative ${color} ${bgColor} transition-colors duration-100`}
+                className="relative transition-colors duration-100"
+                style={{ color: textColor || undefined, backgroundColor: bgColor || undefined }}
               >
                 {isCurrent && (
-                    <span className="absolute -left-0.5 top-1 bottom-1 w-0.5 bg-yellow-400 animate-pulse rounded-full"></span>
+                    <span className="absolute -left-[1px] top-1 bottom-1 w-[2px] animate-pulse rounded-full" style={{ background: "var(--accent)" }}></span>
                 )}
                 {char}
               </span>
             );
           })}
         </div>
-        
-        {/* Overlay Blur Bawah (Supaya user fokus ke baris atas) */}
-        <div className="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-slate-900 to-transparent pointer-events-none"></div>
       </div>
 
-      <div className="text-center mt-6 text-slate-600 text-xs">
-        <p>Tip: Tekan <span className="text-slate-400 font-bold">TAB</span> untuk restart cepat kapan saja.</p>
+      <div className="text-center mt-12 text-xs font-bold tracking-widest" style={{ color: "var(--text-muted)" }}>
+        <p>TIP: TEKAN <span className="px-1.5 py-0.5 rounded border ml-1 mr-1" style={{ borderColor: "var(--card-border)", color: "var(--text-primary)", background: "var(--card-bg)" }}>TAB</span> UNTUK RESTART CEPAT</p>
       </div>
 
     </div>

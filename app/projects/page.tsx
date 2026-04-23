@@ -14,11 +14,11 @@ export default async function PortfolioPage() {
     });
     if (res.ok) {
       const data = await res.json();
-      
+
       // Filter repos: Abaikan forks, saymaven.github.io, dan repo profil
-      githubRepos = data.filter((repo: any) => 
-        !repo.fork && 
-        repo.name !== 'saymaven.github.io' && 
+      githubRepos = data.filter((repo: any) =>
+        !repo.fork &&
+        repo.name !== 'saymaven.github.io' &&
         repo.name !== 'SayMaven'
       ).map((repo: any) => ({
         id: repo.id,
@@ -34,18 +34,18 @@ export default async function PortfolioPage() {
 
       // Mapping khusus untuk repo yang deskripsinya null atau perlu penyesuaian detail
       githubRepos = githubRepos.map(repo => {
-         if (repo.name === 'mavmanga-web') {
-           repo.description = "Platform baca manga murni memanfaatkan sumber API MangaDex, di mana saya menambahkan optimasi khusus, fitur kustom, dan perombakan antarmuka yang tidak dimiliki versi bawaannya.";
-         } else if (repo.name === 'bangdream') {
-           repo.description = "Ganso! BanG Dream Chan Note Shooter. Modifikasi dari web shooter game statis dengan injeksi translasi Bahasa Indonesia, integrasi API live score mandiri, serta peningkatan logika permainan & UI.";
-         } else if (repo.name === 'mavenflow') {
-           repo.description = "Web Data Aggregator seputar Jejepangan. Merangkum informasi spesifik secara presisi dengan AI, mencakup perbandingan harga barang, ranking ilustrasi Pixiv bulanan, tangga lagu Jepang, dan kompilasi berita.";
-         } else if (repo.name === 'prt-web') {
-           repo.description = "Digital Portfolio Website (Sistem yang sedang Anda gunakan saat ini!). Dibangun modern untuk menampilkan rincian proyek eksklusif dan visual showcase karya saya.";
-         } else if (repo.name === 'bangdream-api') {
-           repo.description = "API Backend Live Score & global leaderboard berbasis Python FastAPI, dirancang secara khusus untuk diintegrasikan dalam menampung data skor interaktif game Ganso BanG Dream Chan.";
-         }
-         return repo;
+        if (repo.name === 'mavmanga-web') {
+          repo.description = "Platform baca manga murni memanfaatkan sumber API MangaDex, di mana saya menambahkan optimasi khusus, fitur kustom, dan perombakan antarmuka yang tidak dimiliki versi bawaannya.";
+        } else if (repo.name === 'bangdream') {
+          repo.description = "Ganso! BanG Dream Chan Note Shooter. Modifikasi dari web shooter game statis dengan injeksi translasi Bahasa Indonesia, integrasi API live score mandiri, serta peningkatan logika permainan & UI.";
+        } else if (repo.name === 'mavenflow') {
+          repo.description = "Web Data Aggregator seputar Jejepangan. Merangkum informasi spesifik secara presisi dengan AI, mencakup perbandingan harga barang, ranking ilustrasi Pixiv bulanan, tangga lagu Jepang, dan kompilasi berita.";
+        } else if (repo.name === 'prt-web') {
+          repo.description = "Digital Portfolio Website (Sistem yang sedang Anda gunakan saat ini!). Dibangun modern untuk menampilkan rincian proyek eksklusif dan visual showcase karya saya.";
+        } else if (repo.name === 'bangdream-api') {
+          repo.description = "API Backend Live Score & global leaderboard berbasis Python FastAPI, dirancang secara khusus untuk diintegrasikan dalam menampung data skor interaktif game Ganso BanG Dream Chan.";
+        }
+        return repo;
       });
 
     }
@@ -86,7 +86,7 @@ export default async function PortfolioPage() {
 
   return (
     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      
+
       {/* Header Halaman */}
       <section className="mt-4">
         <h1 className="text-4xl font-extrabold mb-4 tracking-tight flex justify-between items-center flex-wrap gap-4" style={{ color: "var(--text-primary)" }}>
@@ -106,7 +106,7 @@ export default async function PortfolioPage() {
       {/* Empty State Darurat jika gagal me-load data */}
       {finalProjects.length === 0 && (
         <div className="text-center py-20 rounded-2xl border border-dashed" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
-            <p style={{ color: "var(--text-muted)" }}>Menunggu respons dari server GitHub...</p>
+          <p style={{ color: "var(--text-muted)" }}>Menunggu respons dari server GitHub...</p>
         </div>
       )}
     </div>

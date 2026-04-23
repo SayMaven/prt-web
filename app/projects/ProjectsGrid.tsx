@@ -28,13 +28,13 @@ const itemVariants: Variants = {
 
 // Each language gets its own palette: { bg, text, border, glow }
 const LANG_PALETTE: Record<string, { icon: string; glow: string; badge: string }> = {
-  typescript:        { icon: "#3b82f6", glow: "rgba(59,130,246,0.25)",  badge: "rgba(59,130,246,0.12) border border-blue-500/25 text-blue-400" },
-  javascript:        { icon: "#f59e0b", glow: "rgba(245,158,11,0.25)",  badge: "rgba(245,158,11,0.12) border border-yellow-500/25 text-yellow-400" },
-  python:            { icon: "#10b981", glow: "rgba(16,185,129,0.25)",  badge: "rgba(16,185,129,0.12) border border-emerald-500/25 text-emerald-400" },
-  rust:              { icon: "#f97316", glow: "rgba(249,115,22,0.25)",  badge: "rgba(249,115,22,0.12) border border-orange-500/25 text-orange-400" },
-  html:              { icon: "#ef4444", glow: "rgba(239,68,68,0.25)",   badge: "rgba(239,68,68,0.12) border border-red-500/25 text-red-400" },
-  css:               { icon: "#6366f1", glow: "rgba(99,102,241,0.25)",  badge: "rgba(99,102,241,0.12) border border-indigo-500/25 text-indigo-400" },
-  "jupyter notebook":{ icon: "#f97316", glow: "rgba(249,115,22,0.25)", badge: "rgba(249,115,22,0.12) border border-orange-600/25 text-orange-500" },
+  typescript: { icon: "#3b82f6", glow: "rgba(59,130,246,0.25)", badge: "rgba(59,130,246,0.12) border border-blue-500/25 text-blue-400" },
+  javascript: { icon: "#f59e0b", glow: "rgba(245,158,11,0.25)", badge: "rgba(245,158,11,0.12) border border-yellow-500/25 text-yellow-400" },
+  python: { icon: "#10b981", glow: "rgba(16,185,129,0.25)", badge: "rgba(16,185,129,0.12) border border-emerald-500/25 text-emerald-400" },
+  rust: { icon: "#f97316", glow: "rgba(249,115,22,0.25)", badge: "rgba(249,115,22,0.12) border border-orange-500/25 text-orange-400" },
+  html: { icon: "#ef4444", glow: "rgba(239,68,68,0.25)", badge: "rgba(239,68,68,0.12) border border-red-500/25 text-red-400" },
+  css: { icon: "#6366f1", glow: "rgba(99,102,241,0.25)", badge: "rgba(99,102,241,0.12) border border-indigo-500/25 text-indigo-400" },
+  "jupyter notebook": { icon: "#f97316", glow: "rgba(249,115,22,0.25)", badge: "rgba(249,115,22,0.12) border border-orange-600/25 text-orange-500" },
 };
 
 function getPalette(language: string | null) {
