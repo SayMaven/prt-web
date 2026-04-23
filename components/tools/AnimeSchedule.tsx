@@ -52,54 +52,58 @@ export default function AnimeSchedule() {
       
       {/* 1. Loading State */}
       {loading && (
-        <div className="flex flex-col items-center justify-center py-20 space-y-4">
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-slate-400 animate-pulse">Sedang menghubungi markas pusat...</p>
+        <div className="flex flex-col items-center justify-center py-20 space-y-6">
+          <div className="w-12 h-12 border-4 rounded-full animate-spin" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }}></div>
+          <p className="animate-pulse font-medium" style={{ color: "var(--text-secondary)" }}>Sedang menghubungi markas pusat...</p>
         </div>
       )}
 
       {/* 2. Error State */}
       {error && (
-        <div className="p-4 bg-red-900/20 border border-red-500/50 rounded-xl text-red-300 text-center">
+        <div className="p-6 rounded-2xl border text-center backdrop-blur-sm" style={{ background: "rgba(239, 68, 68, 0.1)", borderColor: "rgba(239, 68, 68, 0.2)", color: "rgba(252, 165, 165, 1)" }}>
           {error}
         </div>
       )}
 
       {/* 3. Success State (Grid Anime) */}
       {!loading && !error && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {animeList.map((anime) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {animeList.map((anime, idx) => (
             <a 
-              key={anime.mal_id}
+              key={`${anime.mal_id}-${idx}`}
               href={anime.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative overflow-hidden rounded-xl bg-slate-900 border border-slate-800 hover:border-blue-500 transition-all hover:-translate-y-1 block"
+              className="group relative overflow-hidden rounded-3xl border transition-all hover:-translate-y-1 block shadow-lg"
+              style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--card-border)")}
             >
               {/* Gambar Cover */}
-              <div className="aspect-[3/4] overflow-hidden">
+              <div className="aspect-[3/4] overflow-hidden relative">
                 <img 
                   src={anime.images.webp.image_url} 
                   alt={anime.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
               </div>
 
               {/* Info Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent flex flex-col justify-end p-4">
+              <div className="absolute inset-0 flex flex-col justify-end p-5">
                 
                 {/* Score Badge */}
-                <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur text-yellow-400 font-bold px-2 py-1 rounded-lg text-xs border border-yellow-500/30 flex items-center gap-1">
+                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-yellow-400 font-bold px-2.5 py-1 rounded-lg text-xs border border-white/10 flex items-center gap-1 shadow-lg">
                    ⭐ {anime.score ? anime.score : "N/A"}
                 </div>
 
-                <h3 className="text-white font-bold text-lg leading-tight line-clamp-2 mb-1 group-hover:text-blue-400 transition-colors">
+                <h3 className="text-white font-extrabold text-xl leading-tight line-clamp-2 mb-2 group-hover:text-[color:var(--accent)] transition-colors drop-shadow-md">
                   {anime.title}
                 </h3>
                 
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {anime.genres.slice(0, 3).map((g, idx) => (
-                    <span key={idx} className="text-[10px] bg-blue-600/30 text-blue-200 px-2 py-0.5 rounded-full border border-blue-500/20">
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {anime.genres.slice(0, 3).map((g, genreIdx) => (
+                    <span key={genreIdx} className="text-[10px] font-bold px-2.5 py-1 rounded-full border shadow-sm" style={{ background: "var(--accent-subtle)", borderColor: "var(--accent)", color: "var(--accent-text)" }}>
                       {g.name}
                     </span>
                   ))}
@@ -110,9 +114,9 @@ export default function AnimeSchedule() {
         </div>
       )}
       
-      <div className="text-center mt-8">
-        <p className="text-xs text-slate-500">
-          Data powered by <a href="https://jikan.moe/" className="underline hover:text-blue-400">Jikan API</a>
+      <div className="text-center mt-12 mb-8">
+        <p className="text-sm font-medium" style={{ color: "var(--text-muted)" }}>
+          Data powered by <a href="https://jikan.moe/" className="underline hover:text-[color:var(--accent)] transition-colors">Jikan API</a>
         </p>
       </div>
 

@@ -8,15 +8,24 @@ export const metadata: Metadata = {
 
 export default function AnimePage() {
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-6xl mx-auto px-4">
       
-      <section className="text-center mt-4">
-        <h1 className="text-3xl font-extrabold text-white mb-2">
-          Seasonal Anime Chart 
+      <section className="text-center mt-10 mb-12 relative z-10">
+        {/* Badge */}
+        <div
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-6 backdrop-blur-md border"
+          style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}
+        >
+          <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: "var(--accent)" }}></span>
+          <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Real-time Updates</span>
+        </div>
+
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight" style={{ color: "var(--text-primary)" }}>
+          Seasonal <span style={{ color: "var(--accent)", filter: "drop-shadow(0 0 15px var(--accent-subtle))" }}>Anime Chart</span>
         </h1>
-        <p className="text-slate-400 max-w-xl mx-auto">
+        <p className="text-lg max-w-2xl mx-auto leading-relaxed" style={{ color: "var(--text-secondary)" }}>
           Daftar anime yang sedang tayang musim ini (Now Airing). 
-          Data diambil langsung secara <b>Real-time</b>
+          Data diambil langsung secara <b style={{ color: "var(--text-primary)" }}>Real-time</b>
         </p>
       </section>
 
