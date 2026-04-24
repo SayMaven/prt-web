@@ -1,5 +1,6 @@
 import PomodoroTimer from "@/components/tools/PomodoroTimer";
 import type { Metadata } from "next";
+import { Timer } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Pomodoro Focus Timer",
@@ -8,15 +9,29 @@ export const metadata: Metadata = {
 
 export default function PomodoroPage() {
   return (
-    <div className="max-w-4xl mx-auto text-center">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-white mb-2">Pomodoro Timer</h1>
-        <p className="text-emerald-500">
-          Gunakan teknik manajemen waktu ini: 25 menit fokus, 5 menit istirahat.
-        </p>
-      </div>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-6xl mx-auto px-4 py-8 min-h-screen flex flex-col items-center">
       
-      <PomodoroTimer />
+      <section className="text-center mt-6 mb-10 relative z-10 w-full">
+        <div
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 backdrop-blur-md border shadow-sm"
+          style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}
+        >
+          <Timer size={14} style={{ color: "var(--accent)" }} />
+          <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>Productivity Tool</span>
+        </div>
+
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 tracking-tight break-words" style={{ color: "var(--text-primary)" }}>
+          Pomodoro <span style={{ color: "var(--accent)", filter: "drop-shadow(0 0 15px var(--accent-subtle))" }}>Focus</span>
+        </h1>
+        <p className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium" style={{ color: "var(--text-secondary)" }}>
+          Teknik manajemen waktu terpopuler. Tetap di zona fokus Anda dengan kustomisasi <b style={{ color: "var(--text-primary)" }}>Latar Visual</b> dan pelacak tugas otomatis.
+        </p>
+      </section>
+
+      <div className="w-full max-w-5xl">
+        <PomodoroTimer />
+      </div>
+
     </div>
   );
 }

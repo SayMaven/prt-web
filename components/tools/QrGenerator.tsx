@@ -47,35 +47,36 @@ export default function QrGenerator() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+    <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
       
       {/* Kolom Kiri: Input */}
-      <div className="space-y-6">
-        <div>
-            <label className="block text-slate-300 text-sm font-medium mb-2">Isi Konten QR Code:</label>
+      <div className="space-y-6 flex flex-col">
+        <div className="p-6 rounded-2xl border shadow-xl backdrop-blur-md flex-1 flex flex-col" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
+            <label className="block text-sm font-bold mb-4" style={{ color: "var(--text-primary)" }}>Isi Konten QR Code:</label>
             <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Masukkan link website, teks, atau nomor WA di sini..."
-            className="w-full h-40 bg-slate-900/50 border border-slate-700 rounded-xl p-4 text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+            className="w-full flex-1 min-h-[200px] border rounded-xl p-4 focus:ring-2 focus:ring-[color:var(--accent)] outline-none transition-all resize-none placeholder:text-[color:var(--text-muted)]"
+            style={{ background: "var(--page-bg)", color: "var(--text-primary)", borderColor: "var(--card-border)" }}
             />
         </div>
         
-        <div className="p-4 bg-blue-900/20 border border-blue-800 rounded-lg text-blue-200 text-sm">
-            💡 <b>Tips:</b> Ketik sesuatu di kolom atas, QR Code akan muncul otomatis di sebelah kanan.
+        <div className="p-4 rounded-xl border text-sm" style={{ background: "var(--accent-subtle)", borderColor: "var(--accent)", color: "var(--accent-text)" }}>
+            💡 <b>Tips:</b> Ketik sesuatu di kolom atas, QR Code akan otomatis terbuat di sebelah kanan.
         </div>
       </div>
 
       {/* Kolom Kanan: Preview */}
-      <div className="flex flex-col items-center justify-center p-8 bg-green-800 rounded-2xl shadow-2xl min-h-[350px]">
-        <div className="mb-6 flex-1 flex items-center justify-center w-full">
+      <div className="flex flex-col items-center justify-center p-8 rounded-2xl shadow-xl min-h-[400px] border transition-all duration-500" style={{ background: text ? "var(--accent)" : "var(--card-bg)", borderColor: "var(--card-border)" }}>
+        <div className="mb-8 flex-1 flex items-center justify-center w-full relative">
             {/* LOGIKA UTAMA: Cek jika ada text */}
             {text ? (
-                <div className="p-2 border-2 border-slate-100 rounded-lg animate-in fade-in zoom-in duration-300">
+                <div className="p-4 bg-white rounded-xl shadow-2xl animate-in zoom-in duration-300 transform hover:scale-105 transition-transform cursor-pointer">
                     <QRCode 
                         id="qr-code-svg"
                         value={text} 
-                        size={200} 
+                        size={220} 
                         level="H"
                         bgColor="#ffffff"
                         fgColor="#000000"
@@ -83,25 +84,26 @@ export default function QrGenerator() {
                 </div>
             ) : (
                 /* Placeholder jika kosong */
-                <div className="flex flex-col items-center text-slate-300 space-y-2">
-                    <div className="p-6 bg-slate-100 rounded-2xl border-2 border-dashed border-slate-200">
-                        <QrIcon size={64} className="opacity-50" />
+                <div className="flex flex-col items-center space-y-4" style={{ color: "var(--text-muted)" }}>
+                    <div className="p-8 rounded-2xl border-2 border-dashed flex items-center justify-center" style={{ background: "var(--page-bg)", borderColor: "var(--card-border)" }}>
+                        <QrIcon size={80} className="opacity-30" />
                     </div>
-                    <p className="text-sm font-medium text-slate-400">Menunggu Input...</p>
+                    <p className="text-sm font-bold" style={{ color: "var(--text-secondary)" }}>Menunggu Input...</p>
                 </div>
             )}
         </div>
 
         <button 
             onClick={downloadQR}
-            disabled={!text} // Tombol mati jika text kosong
-            className={`flex items-center gap-2 px-6 py-2 rounded-full font-bold transition-all
-                ${text 
-                    ? 'bg-slate-900 text-white hover:bg-blue-600 hover:shadow-lg cursor-pointer' 
-                    : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                }`}
+            disabled={!text} 
+            className="flex items-center gap-2 px-8 py-4 rounded-xl font-bold transition-all w-full justify-center shadow-lg active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+            style={{ 
+                background: text ? "var(--page-bg)" : "var(--page-bg)", 
+                color: text ? "var(--text-primary)" : "var(--text-muted)",
+                boxShadow: text ? "0 8px 30px rgba(0,0,0,0.3)" : "none"
+            }}
         >
-            <Download size={18} />
+            <Download size={20} />
             Download PNG
         </button>
       </div>

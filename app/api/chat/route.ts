@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import { NextResponse } from "next/server";
+import { tools } from "@/lib/data";
 
 export async function POST(req: Request) {
   try {
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: "gemini-2.5-flash",
       safetySettings: [
         {
@@ -35,35 +36,24 @@ export async function POST(req: Request) {
 
     // --- PERSONA / OTAK BOT ---
     // Di sini kita setting agar bot tahu siapa kamu
+    
+    const toolsList = tools.map((t, idx) => `${idx + 1}. ${t.title}: ${t.description}`).join("\n      ");
+
     const systemPrompt = `
       PERAN:
       Kamu adalah Maven AI, asisten virtual pintar yang tinggal di dalam website portofolio milik SayMaven.
       
       INFORMASI PEMILIK:
-      - Nama: SayMaven
+      - Nama: Abil Ar Rasyid (SayMaven)
       - Pekerjaan: Illustrator, Komposer & Remote Programmer, Fullstack Developer.
       - Lokasi: Merangin, Jambi.
       - Hobi: Menggambar (Pixiv/Fanbox), Anime (Wibu), Rhythm Game, dan Coding dan Mixing Music.
-      - Tech Stack: Next.js, React, Tailwind, PHP, Python, Html.
+      - Tech Stack: Next.js (App Router), React, TypeScript, Tailwind CSS, Framer Motion, Python, PHP.
       - Status: Mahasiswa & Freelancer.
       
       PENGETAHUAN TENTANG TOOLS DI WEB INI:
       Jika user bertanya "Web ini punya tools apa aja?", kamu bisa jelaskan alat-alat berikut yang tersedia di menu 'Tools':
-      1. Anime Finder Ultimate: Cari anime lengkap dengan filter genre/status.
-      2. Anime Season: Lihat anime apa saja yang sedang ongoing musim ini.
-      3. BPM Tapper: Alat hitung tempo lagu dengan ketukan jari (untuk musisi/gamer).
-      4. Pomodoro Timer: Timer Fokus sederhana dangan metode 25/5 menit.
-      5. Random Gacha Picker: Pengacak pilihan untuk yang susah ambil keputusan.
-      6. Aspect Ratio Calc: Hitung resolusi gambar untuk illustrator.
-      7. Qr Code Gen : ubah links atau teks jadi gambar siap scan.
-      8. JSON Formater : Validasi dan rapikan json yang berantakan.
-      9. Currency Converter : Konversi mata uang asing dengan Realtime.
-      10. Image Compressor : Kecilkan ukuran gambar JPG/PNG di browser.
-      11. Github Finder : Cari profil Github dan lihat repository terbaru.
-      12. Typing Speed Test : Uji Kecepatan mengetik ala Monkeytype.
-      13. Word Counter : Hitung jumlah kata, karakter, dan estimasi waktu baca dengan cepat.
-      14. Password Generator : Buat Password acak yang kuat dan aman dengan kustomisasi karakter.
-      15. BPM Analyzer : Upload lagu dan sistem akan mendeteksi lagu secara otomatis
+      ${toolsList}
       
       PENGETAHUAN TENTANG DI WEB INI:
       - Di web ini juga ada gallery yang berisi illustrasi karakter bangdream Maya Yamato.

@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { PDFDocument } from "pdf-lib";
-import { Upload, X, FileText, Download, ArrowUp, ArrowDown, Image as ImageIcon, FileStack } from "lucide-react";
+import { Upload, X, FileText, Download, ArrowUp, ArrowDown, Image as ImageIcon, FileStack, Files, Trash2, CheckCircle2 } from "lucide-react";
 
 type ToolMode = "MERGE_PDF" | "IMAGE_TO_PDF";
 
@@ -11,6 +11,7 @@ export default function PdfTools() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [mode, setMode] = useState<ToolMode>("MERGE_PDF");
   const [isDragging, setIsDragging] = useState(false);
+  const [isDone, setIsDone] = useState(false);
 
   // --- HELPER: Reset saat ganti mode ---
   const changeMode = (newMode: ToolMode) => {
@@ -18,9 +19,11 @@ export default function PdfTools() {
       if (confirm("Ganti mode akan menghapus file yang sudah dipilih. Lanjutkan?")) {
         setFiles([]);
         setMode(newMode);
+        setIsDone(false);
       }
     } else {
       setMode(newMode);
+      setIsDone(false);
     }
   };
 
@@ -37,6 +40,7 @@ export default function PdfTools() {
     }
 
     setFiles((prev) => [...prev, ...validFiles]);
+    setIsDone(false);
   };
 
   // --- 1. HANDLE DRAG & DROP ---
@@ -69,6 +73,7 @@ export default function PdfTools() {
   // --- 3. UTILS (Hapus & Geser) ---
   const removeFile = (index: number) => {
     setFiles(files.filter((_, i) => i !== index));
+    setIsDone(false);
   };
 
   const moveFile = (index: number, direction: 'up' | 'down') => {
@@ -85,6 +90,7 @@ export default function PdfTools() {
   const processFiles = async () => {
     if (files.length === 0) return;
     setIsProcessing(true);
+    setIsDone(false);
 
     try {
       const doc = await PDFDocument.create();
@@ -129,54 +135,45 @@ export default function PdfTools() {
       let outputName = "merged-document"; // Default fallback
       if (files.length > 0) {
           const firstFileName = files[0].name;
-          // Hapus ekstensi lama (misal: .pdf atau .jpg) agar tidak dobel
           const baseName = firstFileName.substring(0, firstFileName.lastIndexOf('.')) || firstFileName;
-          
-          // Format: "NamaFileAsli + pdf tools.pdf"
-          outputName = `${baseName}-pdf tools`;
+          outputName = `${baseName}-SayMaven`;
       }
 
       link.download = `${outputName}.pdf`;
       link.click();
-
+      
+      setIsDone(true);
     } catch (error) {
       console.error("Process Error:", error);
-      alert("Gagal memproses file. Pastikan file tidak corrupt.");
+      alert("Gagal memproses file. Pastikan file tidak corrupt atau terenkripsi password.");
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-sm shadow-xl">
+    <div className="max-w-2xl mx-auto p-8 border rounded-[2rem] shadow-2xl backdrop-blur-md transition-all duration-500"
+         style={{ borderColor: "var(--card-border)", background: "var(--card-bg)" }}>
       
-      {/* Header */}
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-white flex items-center justify-center gap-2">
-            <span className="text-3xl">📑</span> PDF Tools
-        </h2>
-        <p className="text-slate-400 text-sm mt-2">
-            Kelola file PDF dan Gambar secara instan (Client-side).
-        </p>
-      </div>
-
       {/* TABS MODE SWITCHER */}
-      <div className="flex bg-slate-900/50 p-1 rounded-xl mb-6 border border-slate-700">
+      <div className="flex p-1.5 rounded-2xl mb-8 border" style={{ background: "rgba(0,0,0,0.1)", borderColor: "var(--card-border)" }}>
           <button 
             onClick={() => changeMode("MERGE_PDF")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold transition-all
-                ${mode === "MERGE_PDF" ? "bg-blue-600 text-white shadow-lg" : "text-slate-400 hover:text-white hover:bg-white/5"}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all
+                ${mode === "MERGE_PDF" ? "shadow-md" : "opacity-60 hover:opacity-100 hover:bg-black/5"}
             `}
+            style={mode === "MERGE_PDF" ? { background: "var(--accent)", color: "white" } : { color: "var(--text-primary)" }}
           >
-            <FileStack size={16} /> Merge PDF
+            <FileStack size={18} /> Gabung PDF
           </button>
           <button 
             onClick={() => changeMode("IMAGE_TO_PDF")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-bold transition-all
-                ${mode === "IMAGE_TO_PDF" ? "bg-emerald-600 text-white shadow-lg" : "text-slate-400 hover:text-white hover:bg-white/5"}
+            className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all
+                ${mode === "IMAGE_TO_PDF" ? "shadow-md" : "opacity-60 hover:opacity-100 hover:bg-black/5"}
             `}
+            style={mode === "IMAGE_TO_PDF" ? { background: "var(--accent)", color: "white" } : { color: "var(--text-primary)" }}
           >
-            <ImageIcon size={16} /> Images to PDF
+            <ImageIcon size={18} /> Gambar ke PDF
           </button>
       </div>
 
@@ -185,12 +182,13 @@ export default function PdfTools() {
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
-        className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 bg-slate-900/30 mb-6 group cursor-pointer relative overflow-hidden
-            ${isDragging 
-                ? "border-yellow-400 bg-yellow-400/10 scale-[1.02]" 
-                : "border-slate-700 hover:border-blue-500"
-            }
+        className={`border-2 border-dashed rounded-[2rem] p-10 text-center transition-all duration-300 group cursor-pointer relative overflow-hidden flex flex-col items-center justify-center min-h-[250px] mb-8
+            ${isDragging ? "scale-[1.02]" : ""}
         `}
+        style={{ 
+            borderColor: isDragging ? "var(--accent)" : "var(--card-border)", 
+            background: isDragging ? "var(--accent-subtle)" : "rgba(0,0,0,0.1)" 
+        }}
       >
         <input 
           type="file" 
@@ -200,16 +198,23 @@ export default function PdfTools() {
           className="hidden" 
           id="file-upload"
         />
-        <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-3 w-full h-full relative z-10">
-            <div className={`p-4 rounded-full transition-all ${isDragging ? "bg-yellow-400 text-black" : "bg-slate-800 text-slate-400 group-hover:text-blue-400 group-hover:bg-blue-900/30"}`}>
-                {isDragging ? <Download size={32} className="animate-bounce" /> : <Upload size={32} />}
+        <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center gap-4 w-full h-full relative z-10 justify-center">
+            <div 
+                className={`p-5 rounded-full transition-all shadow-lg border ${isDragging ? "animate-bounce" : "group-hover:scale-110"}`}
+                style={{ 
+                    background: isDragging ? "var(--accent)" : "var(--card-bg)", 
+                    color: isDragging ? "white" : "var(--accent)",
+                    borderColor: isDragging ? "transparent" : "var(--card-border)"
+                }}
+            >
+                <Upload size={36} strokeWidth={2.5} />
             </div>
             <div>
-                <span className="text-white font-bold block text-lg">
-                    {isDragging ? "Lepaskan File Disini!" : mode === "MERGE_PDF" ? "Upload File PDF" : "Upload Gambar (JPG/PNG)"}
+                <span className="font-black block text-xl mb-2" style={{ color: "var(--text-primary)" }}>
+                    {isDragging ? "Lepaskan File Di Sini" : mode === "MERGE_PDF" ? "Upload File PDF" : "Upload Gambar (JPG/PNG)"}
                 </span>
-                <span className="text-xs text-slate-500 mt-1">
-                    Atau klik untuk memilih file • Drag & Drop Supported
+                <span className="text-sm font-medium" style={{ color: "var(--text-secondary)" }}>
+                    Atau klik area ini untuk mencari file • Mendukung Drag & Drop
                 </span>
             </div>
         </label>
@@ -217,36 +222,52 @@ export default function PdfTools() {
 
       {/* File List */}
       {files.length > 0 && (
-        <div className="space-y-3 mb-6">
-            <div className="flex justify-between items-center text-xs text-slate-500 uppercase font-bold tracking-wider px-2">
-                <span>Urutan Halaman ({files.length})</span>
-                <button onClick={() => setFiles([])} className="text-red-400 hover:text-red-300">Hapus Semua</button>
+        <div className="mb-8">
+            <div className="flex justify-between items-center mb-4 px-2">
+                <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>
+                    Urutan File ({files.length})
+                </span>
+                <button 
+                    onClick={() => { setFiles([]); setIsDone(false); }} 
+                    className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/50 transition-all"
+                    style={{ borderColor: "var(--card-border)", color: "var(--text-muted)" }}
+                >
+                    <Trash2 size={14} /> Bersihkan
+                </button>
             </div>
             
-            <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+            <div className="max-h-[350px] overflow-y-auto space-y-3 pr-2 custom-scrollbar">
                 {files.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between bg-slate-800/80 p-3 rounded-lg border border-slate-700 hover:border-slate-500 transition-all">
-                        <div className="flex items-center gap-3 overflow-hidden">
-                            <span className="bg-slate-900 text-slate-400 font-mono text-xs w-6 h-6 flex items-center justify-center rounded-full border border-slate-700">
+                    <div 
+                        key={index} 
+                        className="flex items-center justify-between p-4 rounded-xl border transition-all hover:translate-x-1"
+                        style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}
+                    >
+                        <div className="flex items-center gap-4 overflow-hidden">
+                            <span className="font-mono text-xs w-7 h-7 flex items-center justify-center rounded-full border bg-black/10 shrink-0" style={{ borderColor: "var(--card-border)", color: "var(--text-secondary)" }}>
                                 {index + 1}
                             </span>
-                            {mode === "MERGE_PDF" ? <FileText size={18} className="text-red-400 shrink-0" /> : <ImageIcon size={18} className="text-emerald-400 shrink-0" />}
+                            
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-black/5 border shrink-0" style={{ borderColor: "var(--card-border)" }}>
+                                {mode === "MERGE_PDF" ? <FileText size={20} className="text-red-500" /> : <ImageIcon size={20} className="text-emerald-500" />}
+                            </div>
                             
                             <div className="flex flex-col overflow-hidden">
-                                <span className="text-sm text-white truncate max-w-[150px] md:max-w-[250px]">{file.name}</span>
-                                <span className="text-[10px] text-slate-500">{(file.size / 1024).toFixed(0)} KB</span>
+                                <span className="text-sm font-bold truncate max-w-[150px] md:max-w-[250px]" style={{ color: "var(--text-primary)" }}>{file.name}</span>
+                                <span className="text-xs font-medium mt-0.5" style={{ color: "var(--text-muted)" }}>{(file.size / 1024).toFixed(0)} KB</span>
                             </div>
                         </div>
                         
-                        <div className="flex items-center gap-1">
-                            <button onClick={() => moveFile(index, 'up')} disabled={index === 0} className="p-1.5 hover:bg-slate-700 rounded text-slate-400 disabled:opacity-30 hover:text-white transition-colors">
-                                <ArrowUp size={14}/>
+                        <div className="flex items-center gap-1 shrink-0 ml-4">
+                            <button onClick={() => moveFile(index, 'up')} disabled={index === 0} className="p-2 rounded-lg border hover:bg-black/10 disabled:opacity-30 transition-all" style={{ borderColor: "transparent", color: "var(--text-secondary)" }}>
+                                <ArrowUp size={16}/>
                             </button>
-                            <button onClick={() => moveFile(index, 'down')} disabled={index === files.length - 1} className="p-1.5 hover:bg-slate-700 rounded text-slate-400 disabled:opacity-30 hover:text-white transition-colors">
-                                <ArrowDown size={14}/>
+                            <button onClick={() => moveFile(index, 'down')} disabled={index === files.length - 1} className="p-2 rounded-lg border hover:bg-black/10 disabled:opacity-30 transition-all" style={{ borderColor: "transparent", color: "var(--text-secondary)" }}>
+                                <ArrowDown size={16}/>
                             </button>
-                            <button onClick={() => removeFile(index)} className="p-1.5 hover:bg-red-900/30 rounded text-slate-500 hover:text-red-400 ml-1 transition-colors">
-                                <X size={16}/>
+                            <div className="w-px h-6 bg-black/20 mx-1"></div>
+                            <button onClick={() => removeFile(index)} className="p-2 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-all" style={{ color: "var(--text-secondary)" }}>
+                                <X size={18}/>
                             </button>
                         </div>
                     </div>
@@ -259,28 +280,39 @@ export default function PdfTools() {
       <button
         onClick={processFiles}
         disabled={files.length < (mode === "MERGE_PDF" ? 2 : 1) || isProcessing}
-        className={`w-full py-4 rounded-xl font-bold flex items-center justify-center gap-2 transition-all
+        className={`w-full py-4 rounded-xl font-black flex items-center justify-center gap-3 transition-all text-base uppercase tracking-wider
             ${files.length < (mode === "MERGE_PDF" ? 2 : 1)
-                ? "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700" 
-                : mode === "MERGE_PDF"
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-900/20 active:scale-[0.98]"
-                    : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-900/20 active:scale-[0.98]"
+                ? "opacity-50 cursor-not-allowed border" 
+                : isDone
+                    ? "bg-emerald-500 text-white shadow-lg hover:bg-emerald-600"
+                    : "text-white shadow-xl hover:scale-[1.02] active:scale-[0.98]"
             }
         `}
+        style={files.length >= (mode === "MERGE_PDF" ? 2 : 1) && !isDone ? { background: "var(--accent)" } : files.length < (mode === "MERGE_PDF" ? 2 : 1) ? { background: "rgba(0,0,0,0.2)", borderColor: "var(--card-border)", color: "var(--text-muted)" } : {}}
       >
         {isProcessing ? (
-            <span className="flex items-center gap-2">
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                Memproses...
+            <span className="flex items-center gap-3">
+                <span className="w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin"></span>
+                Memproses File...
             </span>
+        ) : isDone ? (
+            <>
+                <CheckCircle2 size={22} /> Selesai Diunduh
+            </>
         ) : (
             <>
-                <Download size={20} />
-                {mode === "MERGE_PDF" ? `Gabungkan PDF (${files.length})` : `Convert Gambar ke PDF (${files.length})`}
+                <Download size={22} />
+                {mode === "MERGE_PDF" ? `Gabungkan ${files.length} PDF` : `Convert ${files.length} Gambar`}
             </>
         )}
       </button>
 
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(150,150,150,0.4); }
+      `}</style>
     </div>
   );
 }

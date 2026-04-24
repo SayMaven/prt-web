@@ -119,8 +119,22 @@ export default function AnimeSearch() {
     setError("");
   };
 
-  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUrlChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
+    
+    // Jika user mem-paste base64 image, convert ke File agar di-upload (bukan dikirim sbg URL parameter yang bikin error)
+    if (url.startsWith("data:image/")) {
+        try {
+            const res = await fetch(url);
+            const blob = await res.blob();
+            const file = new File([blob], "pasted-image.png", { type: blob.type });
+            processFile(file);
+            return;
+        } catch (err) {
+            console.error("Gagal convert base64 ke file", err);
+        }
+    }
+
     setImageUrl(url);
     if (url) {
       setImageFile(null);
@@ -243,9 +257,25 @@ export default function AnimeSearch() {
       }
 
       if (!response || !response.ok) {
-         if (response?.status === 400) throw new Error("Format gambar tidak didukung atau URL tidak bisa diakses.");
-         if (response?.status === 429) throw new Error("Terlalu banyak request (Limit). Tunggu sebentar.");
-         throw new Error("Gagal mengambil data dari server.");
+         let errMsg = "Gagal mengambil data dari server.";
+         if (response) {
+             try {
+                 const errText = await response.text();
+                 try {
+                     const errData = JSON.parse(errText);
+                     if (errData.error) errMsg = errData.error;
+                     else errMsg = errText;
+                 } catch (e) {
+                     if (errText) errMsg = errText;
+                     else if (response.status === 400) errMsg = "Format gambar tidak didukung atau URL tidak bisa diakses.";
+                     else if (response.status === 429) errMsg = "Terlalu banyak request (Limit). Tunggu sebentar.";
+                 }
+             } catch (e) {
+                 if (response.status === 400) errMsg = "Format gambar tidak didukung atau URL tidak bisa diakses.";
+                 if (response.status === 429) errMsg = "Terlalu banyak request (Limit). Tunggu sebentar.";
+             }
+         }
+         throw new Error(errMsg);
       }
 
       const data = await response.json();
@@ -295,37 +325,39 @@ export default function AnimeSearch() {
   return (
     <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-8">
       {/* INPUT AREA */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm shadow-xl">
+      <div className="border rounded-2xl p-6 backdrop-blur-sm shadow-xl" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
         {!previewUrl ? (
           <div className="space-y-6">
              {/* INPUT URL */}
              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Link className="text-slate-500 group-focus-within:text-blue-400" size={18} />
+                    <Link className="transition-colors group-focus-within:text-[color:var(--accent)]" style={{ color: "var(--text-muted)" }} size={18} />
                 </div>
                 <input 
                     type="text" 
                     placeholder="Tempel link gambar (https://...) disini..." 
                     value={imageUrl}
                     onChange={handleUrlChange}
-                    className="w-full bg-slate-900/50 border border-slate-700 text-white text-sm rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
+                    className="w-full border text-sm rounded-xl py-3 pl-10 pr-4 focus:outline-none transition-all placeholder:text-[color:var(--text-muted)]"
+                    style={{ background: "var(--page-bg)", borderColor: "var(--card-border)", color: "var(--text-primary)" }}
+                    onFocus={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+                    onBlur={e => (e.currentTarget.style.borderColor = "var(--card-border)")}
                 />
              </div>
              <div className="relative flex items-center justify-center">
-                <hr className="w-full border-slate-700" />
-                <span className="absolute bg-[#0f172a] px-3 text-xs text-slate-500 font-bold uppercase tracking-widest">ATAU</span>
+                <hr className="w-full border" style={{ borderColor: "var(--card-border)" }} />
+                <span className="absolute px-3 text-xs font-bold uppercase tracking-widest" style={{ background: "var(--card-bg)", color: "var(--text-muted)" }}>ATAU</span>
              </div>
              {/* DROP ZONE */}
              <div 
                 onDragOver={onDragOver}
                 onDragLeave={onDragLeave}
                 onDrop={onDrop}
-                className={`border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 bg-slate-900/30 group cursor-pointer relative overflow-hidden
-                ${isDragging 
-                    ? "border-yellow-400 bg-yellow-400/10 scale-[1.02]" 
-                    : "border-slate-700 hover:border-blue-500"
-                }
-                `}
+                className="border-2 border-dashed rounded-xl p-10 text-center transition-all duration-300 group cursor-pointer relative overflow-hidden"
+                style={{ 
+                    background: isDragging ? "var(--accent-subtle)" : "var(--page-bg)", 
+                    borderColor: isDragging ? "var(--accent)" : "var(--card-border)" 
+                }}
              >
                 <input 
                     type="file" 
@@ -335,19 +367,19 @@ export default function AnimeSearch() {
                     id="anime-upload"
                 />
                 <label htmlFor="anime-upload" className="cursor-pointer flex flex-col items-center gap-4 w-full h-full relative z-10">
-                    <div className="bg-slate-800 p-4 rounded-full text-slate-400 group-hover:text-blue-400 group-hover:bg-blue-900/30 transition-all">
+                    <div className="p-4 rounded-full transition-all group-hover:bg-[color:var(--accent-subtle)] group-hover:text-[color:var(--accent-text)]" style={{ background: "var(--card-bg)", color: "var(--text-muted)" }}>
                         <Upload size={32} />
                     </div>
                     <div>
-                        <span className="text-white font-bold text-lg block">Upload Screenshot</span>
-                        <span className="text-sm text-slate-500">Klik atau Drag & Drop gambar</span>
+                        <span className="font-bold text-lg block" style={{ color: "var(--text-primary)" }}>Upload Screenshot</span>
+                        <span className="text-sm" style={{ color: "var(--text-secondary)" }}>Klik atau Drag & Drop gambar</span>
                     </div>
                 </label>
              </div>
           </div>
         ) : (
           <div className="flex flex-col md:flex-row gap-6 items-center">
-            <div className="relative group w-full md:w-1/2 aspect-video bg-black rounded-lg overflow-hidden border border-slate-700">
+            <div className="relative group w-full md:w-1/2 aspect-video bg-black rounded-lg overflow-hidden border" style={{ borderColor: "var(--card-border)" }}>
                <img 
                  src={previewUrl} 
                  alt="Preview" 
@@ -362,11 +394,11 @@ export default function AnimeSearch() {
                </button>
             </div>
             <div className="w-full md:w-1/2 flex flex-col gap-4">
-               <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
-                 <h3 className="text-slate-300 font-bold mb-1 flex items-center gap-2">
-                    <Info size={16} className="text-blue-400"/> Tips Akurasi
+               <div className="p-4 rounded-lg border" style={{ background: "var(--page-bg)", borderColor: "var(--card-border)" }}>
+                 <h3 className="font-bold mb-1 flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+                    <Info size={16} style={{ color: "var(--accent)" }}/> Tips Akurasi
                  </h3>
-                 <p className="text-xs text-slate-500 leading-relaxed">
+                 <p className="text-xs leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                    Gunakan screenshot <strong>full-frame (16:9)</strong> tanpa crop. 
                    Hasil akan lebih akurat jika gambar tidak mengandung subtitle tebal atau watermark.
                  </p>
@@ -374,7 +406,8 @@ export default function AnimeSearch() {
                <button
                 onClick={handleSearch}
                 disabled={loading}
-                className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow-lg shadow-blue-900/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-4 text-white font-bold rounded-xl shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:opacity-90 active:scale-95"
+                style={{ background: "var(--accent)", boxShadow: "0 4px 14px var(--accent-subtle)" }}
                >
                  {loading ? (
                    <>
@@ -404,8 +437,8 @@ export default function AnimeSearch() {
       {/* HASIL PENCARIAN */}
       {results.length > 0 && (
         <div className="space-y-6 animate-fade-in-up">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <Film className="text-blue-400" /> Hasil Pencarian ({results.length})
+          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+            <Film style={{ color: "var(--accent)" }} /> Hasil Pencarian ({results.length})
           </h2>
 
           <div className="grid grid-cols-1 gap-8">
@@ -416,7 +449,13 @@ export default function AnimeSearch() {
               if (similarityPercent < 70) similarityColor = "text-red-400 border-red-500/30";
 
               return (
-                <div key={idx} className="bg-slate-900/60 border border-slate-700 rounded-xl overflow-hidden flex flex-col lg:flex-row hover:border-blue-500/50 transition-all shadow-xl group">
+                <div 
+                  key={idx} 
+                  className="border rounded-xl overflow-hidden flex flex-col lg:flex-row transition-all shadow-xl group"
+                  style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--card-border)")}
+                >
                   
                   {/* COMPONENT VIDEO PLAYER CUSTOM (Di Kiri) */}
                   <VideoPreview 
@@ -429,22 +468,22 @@ export default function AnimeSearch() {
                   <div className="p-5 flex-1 flex flex-col md:flex-row gap-6">
                      <div className="flex-1 min-w-0">
                         {/* Judul */}
-                        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors leading-tight">
+                        <h3 className="text-xl font-bold mb-2 transition-colors leading-tight group-hover:text-[color:var(--accent)]" style={{ color: "var(--text-primary)" }}>
                            {item.anilist.title.romaji || item.filename}
                         </h3>
 
                         {/* Detail List */}
                         <div className="text-xs space-y-2 mb-4">
                             {(item.anilist.title.native || item.anilist.title.english) && (
-                                <p className="text-slate-400">
+                                <p style={{ color: "var(--text-secondary)" }}>
                                     {item.anilist.title.english || item.anilist.title.native}
                                 </p>
                             )}
 
                             {item.anilist.synonyms && item.anilist.synonyms.length > 0 && (
                                 <div className="grid grid-cols-[60px_1fr] gap-2">
-                                    <span className="font-semibold text-slate-500">Alias</span>
-                                    <span className="text-slate-300 truncate" title={item.anilist.synonyms.join(", ")}>
+                                    <span className="font-semibold" style={{ color: "var(--text-muted)" }}>Alias</span>
+                                    <span className="truncate" style={{ color: "var(--text-secondary)" }} title={item.anilist.synonyms.join(", ")}>
                                         {item.anilist.synonyms.slice(0, 3).join(", ")}
                                     </span>
                                 </div>
@@ -452,8 +491,8 @@ export default function AnimeSearch() {
 
                             {/* Format & Total Episode */}
                             <div className="grid grid-cols-[60px_1fr] gap-2">
-                                <span className="font-semibold text-slate-500">Format</span>
-                                <span className="text-slate-300">
+                                <span className="font-semibold" style={{ color: "var(--text-muted)" }}>Format</span>
+                                <span style={{ color: "var(--text-secondary)" }}>
                                     {item.anilist.format || "TV"} • {item.anilist.episodes || "?"} Eps
                                 </span>
                             </div>
@@ -461,8 +500,8 @@ export default function AnimeSearch() {
                             {/* Genre */}
                             {item.anilist.genres && item.anilist.genres.length > 0 && (
                                 <div className="grid grid-cols-[60px_1fr] gap-2">
-                                    <span className="font-semibold text-slate-500">Genre</span>
-                                    <span className="text-blue-300">
+                                    <span className="font-semibold" style={{ color: "var(--text-muted)" }}>Genre</span>
+                                    <span style={{ color: "var(--accent)" }}>
                                         {item.anilist.genres.slice(0, 4).join(", ")}
                                     </span>
                                 </div>
@@ -471,8 +510,8 @@ export default function AnimeSearch() {
                             {/* Studio */}
                             {item.anilist.studios && item.anilist.studios.nodes.length > 0 && (
                                 <div className="grid grid-cols-[60px_1fr] gap-2">
-                                    <span className="font-semibold text-slate-500">Studio</span>
-                                    <span className="text-emerald-300">
+                                    <span className="font-semibold" style={{ color: "var(--text-muted)" }}>Studio</span>
+                                    <span className="text-emerald-400">
                                         {item.anilist.studios.nodes[0].name}
                                     </span>
                                 </div>
@@ -483,26 +522,26 @@ export default function AnimeSearch() {
                         <div className="flex flex-wrap gap-2 mb-4">
                             {/* Tahun (Dengan Backup StartDate) */}
                             {(item.anilist.seasonYear || item.anilist.startDate?.year) && (
-                                <span className="bg-slate-700/50 text-orange-300 text-[10px] font-bold px-2 py-1 rounded border border-orange-500/30 flex items-center gap-1">
+                                <span className="text-orange-400 text-[10px] font-bold px-2 py-1 rounded border flex items-center gap-1" style={{ background: "var(--page-bg)", borderColor: "var(--card-border)" }}>
                                     <Calendar size={10} />
                                     {item.anilist.seasonYear || item.anilist.startDate?.year}
                                 </span>
                             )}
 
                             {/* Episode Ditemukan */}
-                            <span className="bg-blue-600/20 text-blue-300 text-[10px] font-bold px-2 py-1 rounded border border-blue-500/30 flex items-center gap-1">
+                            <span className="text-[10px] font-bold px-2 py-1 rounded border flex items-center gap-1" style={{ background: "var(--accent-subtle)", color: "var(--accent-text)", borderColor: "var(--accent)" }}>
                                 <Play size={10} fill="currentColor" />
                                 EP {item.episode}
                             </span>
                             
                             {/* Timestamp */}
-                            <span className="bg-slate-700/50 text-slate-300 text-[10px] font-bold px-2 py-1 rounded border border-slate-600 flex items-center gap-1">
+                            <span className="text-[10px] font-bold px-2 py-1 rounded border flex items-center gap-1" style={{ background: "var(--page-bg)", color: "var(--text-secondary)", borderColor: "var(--card-border)" }}>
                                 <Clock size={10} />
                                 {formatTime(item.from)} - {formatTime(item.to)}
                             </span>
                             
                             {item.anilist.isAdult && (
-                                <span className="bg-red-600/20 text-red-300 text-[10px] font-bold px-2 py-1 rounded border border-red-500/30">
+                                <span className="bg-red-600/20 text-red-400 text-[10px] font-bold px-2 py-1 rounded border border-red-500/30">
                                     R-18
                                 </span>
                             )}
@@ -510,11 +549,11 @@ export default function AnimeSearch() {
 
                         {/* Sinopsis */}
                         {item.anilist.description && (
-                             <div className="bg-slate-800/40 p-3 rounded-lg border border-slate-700/50">
-                                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
+                             <div className="p-3 rounded-lg border" style={{ background: "var(--page-bg)", borderColor: "var(--card-border)" }}>
+                                <h4 className="text-[10px] font-bold uppercase tracking-wider mb-1 flex items-center gap-1" style={{ color: "var(--text-muted)" }}>
                                     <BookOpen size={10}/> Sinopsis
                                 </h4>
-                                <p className="text-xs text-slate-300 leading-relaxed line-clamp-3">
+                                <p className="text-xs leading-relaxed line-clamp-3" style={{ color: "var(--text-secondary)" }}>
                                     {item.anilist.description}
                                 </p>
                              </div>
@@ -526,7 +565,8 @@ export default function AnimeSearch() {
                                 href={item.anilist.siteUrl || `https://anilist.co/anime/${item.anilist.id}`}
                                 target="_blank" 
                                 rel="noreferrer"
-                                className="block text-center w-full py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded transition-colors"
+                                className="block text-center w-full py-2 text-white text-xs font-bold rounded transition-colors shadow-lg hover:opacity-90"
+                                style={{ background: "var(--accent)" }}
                             >
                                 Lihat di AniList ↗
                             </a>
@@ -539,13 +579,23 @@ export default function AnimeSearch() {
                             <img 
                                 src={item.anilist.coverImage.large} 
                                 alt="Cover" 
-                                className="w-full aspect-[2/3] object-cover rounded-lg shadow-lg border border-slate-600/50"
+                                className="w-full aspect-[2/3] object-cover rounded-lg shadow-lg border"
+                                style={{ borderColor: "var(--card-border)" }}
                             />
                             <a 
                                 href={item.anilist.siteUrl || `https://anilist.co/anime/${item.anilist.id}`}
                                 target="_blank" 
                                 rel="noreferrer"
-                                className="text-center w-full py-1.5 bg-slate-700 hover:bg-blue-600 text-white text-[10px] font-bold rounded transition-colors border border-slate-600"
+                                className="text-center w-full py-1.5 text-[10px] font-bold rounded transition-colors border hover:text-white"
+                                style={{ background: "var(--page-bg)", borderColor: "var(--card-border)", color: "var(--text-primary)" }}
+                                onMouseEnter={e => {
+                                    e.currentTarget.style.background = "var(--accent)";
+                                    e.currentTarget.style.borderColor = "var(--accent)";
+                                }}
+                                onMouseLeave={e => {
+                                    e.currentTarget.style.background = "var(--page-bg)";
+                                    e.currentTarget.style.borderColor = "var(--card-border)";
+                                }}
                             >
                                 AniList ↗
                             </a>

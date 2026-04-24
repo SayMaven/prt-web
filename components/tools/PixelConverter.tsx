@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Upload, Image as ImageIcon, Download, X, Settings, RefreshCcw, Check, Plus, Trash2, AlertCircle } from "lucide-react";
+import { Upload, Download, X, Settings, RefreshCcw, Check, Plus, Trash2, AlertCircle, Maximize, FileImage } from "lucide-react";
 
-// Struktur data item dalam antrian
 type QueueItem = {
   id: string;
   file: File;
@@ -18,7 +17,6 @@ type ProcessedImage = {
   format: string;
 };
 
-// Daftar Format
 const SUPPORTED_FORMATS = [
   { id: "image/webp", label: "WEBP", desc: "Best for Web" },
   { id: "image/jpeg", label: "JPEG", desc: "Photography" },
@@ -40,11 +38,10 @@ export default function PixelConverter() {
   // Settings
   const [targetFormat, setTargetFormat] = useState<TargetFormat>("image/webp");
   const [quality, setQuality] = useState(0.8);
+  const [scale, setScale] = useState(1); // 0.1 to 1.0 for image resizing
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Cleanup effect: Hanya jalan saat component unmount (tutup tab/pindah halaman)
-  // Kita TIDAK membersihkan URL saat state berubah agar thumbnail tidak hilang
   useEffect(() => {
     return () => {
       queue.forEach(item => URL.revokeObjectURL(item.previewUrl));
@@ -54,13 +51,13 @@ export default function PixelConverter() {
 
   const addToQueue = (newFiles: File[]) => {
     const newItems = newFiles.map(file => ({
-      id: crypto.randomUUID(), // Unique ID untuk key
+      id: crypto.randomUUID(),
       file,
       previewUrl: URL.createObjectURL(file)
     }));
     
     setQueue(prev => [...prev, ...newItems]);
-    setProcessed([]); // Reset hasil karena antrian berubah
+    setProcessed([]);
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,7 +67,6 @@ export default function PixelConverter() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // --- DRAG & DROP ---
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -93,11 +89,10 @@ export default function PixelConverter() {
     }
   };
 
-  // FIX: Hapus item spesifik tanpa merusak URL item lain
   const removeItem = (idToRemove: string) => {
     setQueue(prev => {
       const itemToRemove = prev.find(i => i.id === idToRemove);
-      if (itemToRemove) URL.revokeObjectURL(itemToRemove.previewUrl); // Hapus memori item ini saja
+      if (itemToRemove) URL.revokeObjectURL(itemToRemove.previewUrl);
       return prev.filter(i => i.id !== idToRemove);
     });
     setProcessed([]); 
@@ -116,20 +111,20 @@ export default function PixelConverter() {
         const img = new Image();
         img.onload = () => {
           
-          // --- LOGIC RESIZE (FIX ICO SIZE) ---
-          let finalWidth = img.width;
-          let finalHeight = img.height;
+          let finalWidth = img.width * scale;
+          let finalHeight = img.height * scale;
 
-          // Jika format ICO, paksa resize max 256px (Standar icon modern)
-          // Ini mengurangi ukuran file secara drastis (misal 2MB -> 50KB)
           if (targetFormat === "image/x-icon") {
               const MAX_ICO_SIZE = 256;
               if (finalWidth > MAX_ICO_SIZE || finalHeight > MAX_ICO_SIZE) {
                   const ratio = Math.min(MAX_ICO_SIZE / finalWidth, MAX_ICO_SIZE / finalHeight);
-                  finalWidth = Math.round(finalWidth * ratio);
-                  finalHeight = Math.round(finalHeight * ratio);
+                  finalWidth = finalWidth * ratio;
+                  finalHeight = finalHeight * ratio;
               }
           }
+
+          finalWidth = Math.round(finalWidth) || 1;
+          finalHeight = Math.round(finalHeight) || 1;
 
           const canvas = document.createElement("canvas");
           canvas.width = finalWidth;
@@ -137,18 +132,13 @@ export default function PixelConverter() {
           
           const ctx = canvas.getContext("2d");
           if (ctx) {
-             // Handle background putih untuk JPEG/BMP (tidak support transparan)
              if (targetFormat === "image/jpeg" || targetFormat === "image/bmp") {
                  ctx.fillStyle = "#FFFFFF"; 
                  ctx.fillRect(0, 0, canvas.width, canvas.height);
              }
              
-             // Gunakan ukuran baru yang sudah di-resize
              ctx.drawImage(img, 0, 0, finalWidth, finalHeight);
              
-             // Tentukan encoder format
-             // ICO sebenarnya tidak didukung native oleh toBlob, jadi kita encode sebagai PNG
-             // lalu nanti kita ganti ekstensinya jadi .ico (Trik standar web converter)
              const encoderFormat = targetFormat === "image/x-icon" ? "image/png" : targetFormat;
 
              canvas.toBlob(
@@ -159,11 +149,9 @@ export default function PixelConverter() {
                       blob,
                       url: URL.createObjectURL(blob),
                       size: blob.size,
-                      // Rename extension .png -> .ico
                       format: targetFormat.split("/")[1].replace("x-icon", "ico")
                     });
                   } else {
-                    // Fallback
                     canvas.toBlob((fbBlob) => {
                         if(fbBlob) resolve({
                             originalName: item.file.name,
@@ -203,19 +191,21 @@ export default function PixelConverter() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-4 md:p-8 space-y-8">
+    <div className="w-full space-y-8 max-w-6xl mx-auto">
 
       <div 
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={`
-            bg-gray-900 border-2 transition-all duration-300 rounded-2xl shadow-xl overflow-hidden
-            ${isDragging 
-                ? "border-purple-500 bg-slate-900/80 scale-[1.01] shadow-purple-500/20" 
-                : "border-slate-800"
-            }
+            border-2 transition-all duration-300 rounded-[2.5rem] shadow-2xl overflow-hidden relative
+            ${isDragging ? "scale-[1.01]" : ""}
         `}
+        style={{ 
+            background: isDragging ? "var(--card-bg)" : "var(--card-bg)", 
+            borderColor: isDragging ? "var(--accent)" : "var(--card-border)",
+            boxShadow: isDragging ? "0 0 30px var(--accent-subtle)" : undefined
+        }}
       >
          
          <input 
@@ -227,100 +217,107 @@ export default function PixelConverter() {
             onChange={handleFileChange}
          />
 
-         {/* --- LOGIC TAMPILAN --- */}
          {queue.length === 0 ? (
-             // STATE KOSONG: UPLOAD AREA BESAR
              <div 
                 onClick={() => fileInputRef.current?.click()}
-                className="p-12 md:p-20 text-center cursor-pointer hover:bg-slate-800/50 transition-colors"
+                className="p-16 md:p-24 text-center cursor-pointer hover:bg-black/5 transition-colors relative group"
              >
-                <div className="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                    <Upload className={`transition-colors ${isDragging ? "text-purple-400" : "text-slate-400"}`} size={40} />
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                <div className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform shadow-lg border" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
+                    <Upload className={`transition-colors`} style={{ color: isDragging ? "var(--accent)" : "var(--text-secondary)" }} size={40} />
                 </div>
-                <h3 className="text-2xl font-bold text-white mb-2">
+                <h3 className="text-2xl sm:text-3xl font-black mb-3" style={{ color: "var(--text-primary)" }}>
                     {isDragging ? "Lepaskan File Disini" : "Upload Gambar"}
                 </h3>
-                <p className="text-slate-500 max-w-sm mx-auto">
-                    Klik atau drag & drop gambar. Mendukung format modern dan klasik (ICO, BMP).
+                <p className="text-sm sm:text-base font-medium max-w-sm mx-auto opacity-70 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                    Klik atau drag & drop gambar. Mendukung konversi format modern (WebP, AVIF) dan kompresi tanpa server.
                 </p>
              </div>
          ) : (
-             // STATE TERISI: GRID PREVIEW & SETTINGS
-             <div className="p-6 space-y-6">
+             <div className="p-8 sm:p-10 space-y-8 flex flex-col lg:flex-row gap-8 items-start">
                  
-                 {/* Header Toolbar */}
-                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4">
-                    <div className="flex items-center gap-3">
-                        <span className="text-white font-bold text-lg">{queue.length} Gambar Dipilih</span>
-                        <button 
-                            onClick={() => fileInputRef.current?.click()}
-                            className="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white px-3 py-1.5 rounded-full transition-colors"
-                        >
-                            <Plus size={14}/> Tambah
-                        </button>
-                    </div>
-                    <button 
-                        onClick={clearAll}
-                        className="text-red-400 hover:text-red-300 text-xs font-bold flex items-center gap-1"
-                    >
-                        <Trash2 size={14}/> Hapus Semua
-                    </button>
-                 </div>
+                 {/* KIRI: DAFTAR GAMBAR */}
+                 <div className="w-full lg:w-3/5 space-y-6">
+                     <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style={{ borderColor: "var(--card-border)" }}>
+                        <div className="flex items-center gap-3">
+                            <span className="font-black text-xl flex items-center gap-2" style={{ color: "var(--text-primary)" }}>
+                                <FileImage size={20} style={{ color: "var(--accent)" }}/> {queue.length} Gambar
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button 
+                                onClick={() => fileInputRef.current?.click()}
+                                className="flex items-center gap-1 hover:bg-black/10 text-xs font-bold px-4 py-2 rounded-xl transition-colors border"
+                                style={{ color: "var(--text-primary)", borderColor: "var(--card-border)", background: "var(--card-bg)" }}
+                            >
+                                <Plus size={14}/> Tambah
+                            </button>
+                            <button 
+                                onClick={clearAll}
+                                className="text-red-500 bg-red-500/10 hover:bg-red-500/20 text-xs font-bold px-4 py-2 rounded-xl flex items-center gap-1 transition-colors"
+                            >
+                                <Trash2 size={14}/> Bersihkan
+                            </button>
+                        </div>
+                     </div>
 
-                 {/* GRID PREVIEW (Thumbnail tidak hilang saat hapus item) */}
-                 <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 animate-fade-in max-h-[350px] overflow-y-auto custom-scrollbar p-2">
-                     {queue.map((item) => (
-                         <div key={item.id} className="relative group bg-slate-950 border border-slate-800 rounded-xl overflow-hidden aspect-square shadow-md">
-                             <img src={item.previewUrl} className="w-full h-full object-cover transition-opacity group-hover:opacity-75" alt="preview" />
-                             
-                             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-3 pt-6">
-                                 <p className="text-[10px] text-slate-200 truncate font-mono">{item.file.name}</p>
-                                 <p className="text-[10px] text-slate-500">{formatSize(item.file.size)}</p>
+                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 max-h-[400px] overflow-y-auto custom-scrollbar p-2 -mx-2">
+                         {queue.map((item) => (
+                             <div key={item.id} className="relative group rounded-2xl overflow-hidden aspect-square shadow-md border" style={{ borderColor: "var(--card-border)" }}>
+                                 <img src={item.previewUrl} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" alt="preview" />
+                                 
+                                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity"></div>
+                                 
+                                 <div className="absolute bottom-0 left-0 right-0 p-4">
+                                     <p className="text-[10px] text-white truncate font-mono font-bold mb-0.5">{item.file.name}</p>
+                                     <p className="text-[10px] text-white/70 font-bold">{formatSize(item.file.size)}</p>
+                                 </div>
+
+                                 <button 
+                                    onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
+                                    className="absolute top-3 right-3 bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-all scale-75 group-hover:scale-100 shadow-lg hover:bg-red-600"
+                                 >
+                                     <X size={14} strokeWidth={3} />
+                                 </button>
                              </div>
-
-                             <button 
-                                onClick={(e) => { e.stopPropagation(); removeItem(item.id); }}
-                                className="absolute top-2 right-2 bg-red-500/90 hover:bg-red-500 text-white p-1.5 rounded-full opacity-0 group-hover:opacity-100 transition-all scale-90 group-hover:scale-100 shadow-lg"
-                             >
-                                 <X size={14} />
-                             </button>
-                         </div>
-                     ))}
+                         ))}
+                     </div>
                  </div>
 
-                 {/* SETTINGS PANEL */}
-                 <div className="bg-slate-950 p-5 rounded-xl border border-slate-800 space-y-5">
+                 {/* KANAN: SETTINGS */}
+                 <div className="w-full lg:w-2/5 p-6 rounded-3xl border shadow-lg space-y-6" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
                     
-                    {/* Format Grid */}
-                    <div className="space-y-3">
-                        <label className="text-xs font-bold text-slate-400 flex items-center gap-2 uppercase tracking-wider">
-                            <Settings size={12}/> Target Format
+                    <div className="space-y-4">
+                        <label className="text-xs font-black flex items-center gap-2 uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>
+                            <Settings size={14}/> Target Format
                         </label>
-                        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                             {SUPPORTED_FORMATS.map((fmt) => (
                                 <button
                                     key={fmt.id}
                                     onClick={() => setTargetFormat(fmt.id)}
                                     className={`
-                                        flex flex-col items-center justify-center p-2 rounded-lg border transition-all
+                                        flex flex-col items-center justify-center p-3 rounded-2xl border transition-all
                                         ${targetFormat === fmt.id 
-                                            ? "bg-purple-600 border-purple-500 text-white shadow-lg shadow-purple-900/30" 
-                                            : "bg-slate-900 border-slate-700 text-slate-400 hover:bg-slate-800 hover:border-slate-600"
+                                            ? "shadow-lg scale-100" 
+                                            : "hover:bg-black/5 hover:scale-[0.98] scale-100"
                                         }
                                     `}
+                                    style={targetFormat === fmt.id ? { background: "var(--accent)", color: "white", borderColor: "var(--accent)" } : { background: "transparent", color: "var(--text-primary)", borderColor: "var(--card-border)" }}
                                 >
-                                    <span className="text-xs font-bold">{fmt.label}</span>
-                                    <span className="text-[9px] opacity-70">{fmt.desc}</span>
+                                    <span className="text-sm font-black">{fmt.label}</span>
+                                    <span className="text-[10px] opacity-70 font-medium mt-0.5">{fmt.desc}</span>
                                 </button>
                             ))}
                         </div>
                     </div>
 
-                    {/* Compression Slider */}
-                    <div className="space-y-3 pt-2">
-                        <div className="flex justify-between items-end">
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Compression / Quality</label>
-                            <span className="text-xs font-mono text-purple-400 bg-purple-900/20 px-2 py-0.5 rounded border border-purple-500/30">
+                    <div className="space-y-4 pt-4 border-t" style={{ borderColor: "var(--card-border)" }}>
+                        <div className="flex justify-between items-center">
+                            <label className="text-xs font-black flex items-center gap-2 uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>
+                                <RefreshCcw size={14}/> Quality
+                            </label>
+                            <span className="text-xs font-black px-2 py-1 rounded-lg" style={{ color: "white", background: "var(--accent)" }}>
                                 {(quality * 100).toFixed(0)}%
                             </span>
                         </div>
@@ -331,60 +328,81 @@ export default function PixelConverter() {
                             step="0.05" 
                             value={quality}
                             onChange={(e) => setQuality(parseFloat(e.target.value))}
-                            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                            style={{ background: "var(--card-border)", accentColor: "var(--accent)" }}
                         />
-                        <div className="flex justify-between text-[10px] text-slate-600 font-mono">
-                            <span>Low Quality (Small)</span>
-                            <span>High Quality (Large)</span>
-                        </div>
                     </div>
-                 </div>
 
-                 {/* ACTION BUTTON */}
-                 <button
-                    onClick={handleProcess}
-                    disabled={isProcessing}
-                    className="w-full py-4 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl shadow-xl shadow-purple-900/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 hover:scale-[1.01] active:scale-[0.99]"
-                 >
-                    {isProcessing ? (
-                        <div className="flex items-center gap-2 animate-pulse">
-                            <RefreshCcw size={20} className="animate-spin"/> Processing...
+                    <div className="space-y-4 pt-4 border-t" style={{ borderColor: "var(--card-border)" }}>
+                        <div className="flex justify-between items-center">
+                            <label className="text-xs font-black flex items-center gap-2 uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>
+                                <Maximize size={14}/> Resize Image
+                            </label>
+                            <span className="text-xs font-black px-2 py-1 rounded-lg" style={{ color: "white", background: "var(--accent)" }}>
+                                {(scale * 100).toFixed(0)}%
+                            </span>
                         </div>
-                    ) : (
-                        <><RefreshCcw size={20}/> Convert {queue.length} Images</>
-                    )}
-                 </button>
+                        <input 
+                            type="range" 
+                            min="0.1" 
+                            max="1" 
+                            step="0.1" 
+                            value={scale}
+                            onChange={(e) => setScale(parseFloat(e.target.value))}
+                            className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                            style={{ background: "var(--card-border)", accentColor: "var(--accent)" }}
+                        />
+                        <p className="text-[10px] font-medium opacity-70 text-center" style={{ color: "var(--text-secondary)" }}>Turunkan skala untuk mengurangi ukuran piksel secara proporsional.</p>
+                    </div>
+
+                    <div className="pt-4">
+                        <button
+                            onClick={handleProcess}
+                            disabled={isProcessing}
+                            className="w-full py-5 font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98]"
+                            style={{ background: "var(--accent)", color: "white" }}
+                        >
+                            {isProcessing ? (
+                                <div className="flex items-center gap-2 animate-pulse">
+                                    <RefreshCcw size={18} className="animate-spin"/> Memproses...
+                                </div>
+                            ) : (
+                                <><Check size={18}/> Convert {queue.length} Images</>
+                            )}
+                        </button>
+                    </div>
+
+                 </div>
              </div>
          )}
       </div>
 
       {/* RESULTS LIST */}
       {processed.length > 0 && (
-          <div className="space-y-4 animate-fade-in-up pt-4 border-t border-slate-800">
+          <div className="space-y-6 animate-in slide-in-from-bottom-8 duration-500 pt-4">
               <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                      <Check className="text-green-400" /> Selesai ({processed.length})
+                  <h3 className="text-2xl font-black flex items-center gap-3" style={{ color: "var(--text-primary)" }}>
+                      <div className="p-2 rounded-full bg-green-500/10 text-green-500"><Check size={20} strokeWidth={3}/></div> Selesai ({processed.length})
                   </h3>
-                  {/* Warning Info */}
                   {processed.some(p => targetFormat === 'image/x-icon' ? p.format !== 'ico' : p.format !== targetFormat.split('/')[1]) && (
-                      <span className="text-[10px] text-yellow-500 flex items-center gap-1 bg-yellow-900/20 px-2 py-1 rounded">
-                          <AlertCircle size={10}/> Fallback applied for incompatible format.
+                      <span className="text-[10px] font-bold text-yellow-500 flex items-center gap-1 bg-yellow-500/10 px-3 py-1.5 rounded-full border border-yellow-500/20">
+                          <AlertCircle size={12}/> Fallback Format Diterapkan.
                       </span>
                   )}
               </div>
               
-              <div className="grid gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {processed.map((item, idx) => (
-                      <div key={idx} className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center justify-between group hover:border-purple-500/50 transition-colors">
+                      <div key={idx} className="border p-4 rounded-[2rem] flex items-center justify-between group hover:shadow-lg transition-all" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
                           <div className="flex items-center gap-4 overflow-hidden">
-                              <div className="w-14 h-14 bg-slate-950 rounded-lg overflow-hidden shrink-0 border border-slate-800">
+                              <div className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 border shadow-inner" style={{ borderColor: "var(--card-border)" }}>
                                   <img src={item.url} className="w-full h-full object-cover" alt="result" />
                               </div>
-                              <div className="min-w-0">
-                                  <p className="text-sm font-bold text-white truncate max-w-[200px] md:max-w-md">{item.originalName}</p>
-                                  <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
-                                      <span className="uppercase bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 text-slate-300">{item.format}</span>
-                                      <span className="text-green-400 font-mono">{formatSize(item.size)}</span>
+                              <div className="min-w-0 pr-4">
+                                  <p className="text-sm font-black truncate" style={{ color: "var(--text-primary)" }}>{item.originalName}</p>
+                                  <div className="flex items-center gap-2 text-[10px] font-bold mt-1.5">
+                                      <span className="uppercase px-2 py-0.5 rounded-md text-white" style={{ background: "var(--accent)" }}>{item.format}</span>
+                                      <span className="text-green-500 bg-green-500/10 px-2 py-0.5 rounded-md font-mono">{formatSize(item.size)}</span>
                                   </div>
                               </div>
                           </div>
@@ -392,10 +410,11 @@ export default function PixelConverter() {
                           <a 
                             href={item.url} 
                             download={`converted_${idx + 1}.${item.format}`}
-                            className="bg-slate-800 hover:bg-green-600 text-slate-300 hover:text-white p-2.5 rounded-lg transition-all shadow-sm"
+                            className="p-4 rounded-2xl transition-all shadow-md hover:scale-110 active:scale-95"
+                            style={{ background: "var(--text-primary)", color: "var(--card-bg)" }}
                             title="Download"
                           >
-                              <Download size={20} />
+                              <Download size={20} strokeWidth={2.5} />
                           </a>
                       </div>
                   ))}
@@ -403,6 +422,12 @@ export default function PixelConverter() {
           </div>
       )}
 
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(150,150,150,0.4); }
+      `}</style>
     </div>
   );
 }

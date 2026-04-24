@@ -178,17 +178,20 @@ export default function CivitaiExplorer() {
       
 
       {/* CONTROLS BAR */}
-      <div className="bg-slate-900/50 border border-slate-700 p-4 rounded-2xl sticky top-4 z-30 backdrop-blur-md shadow-xl flex flex-col xl:flex-row gap-4 items-center justify-between">
+      <div className="p-4 rounded-2xl sticky top-4 z-30 backdrop-blur-md shadow-xl flex flex-col xl:flex-row gap-4 items-center justify-between border" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
         
         {/* Search */}
         <div className="relative w-full xl:w-1/3 group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-400 transition-colors" size={18} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 transition-colors group-focus-within:text-[color:var(--accent)]" style={{ color: "var(--text-muted)" }} size={18} />
             <input 
                 type="text" 
                 placeholder="Cari model (misal: Genshin, Mecha)..." 
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-full py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all placeholder:text-slate-600"
+                className="w-full border rounded-full py-2.5 pl-10 pr-4 text-sm focus:outline-none transition-all placeholder:text-[color:var(--text-muted)]"
+                style={{ background: "var(--page-bg)", borderColor: "var(--card-border)", color: "var(--text-primary)" }}
+                onFocus={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+                onBlur={e => (e.currentTarget.style.borderColor = "var(--card-border)")}
             />
         </div>
 
@@ -199,7 +202,10 @@ export default function CivitaiExplorer() {
                 <select 
                     value={selectedType}
                     onChange={(e) => setSelectedType(e.target.value)}
-                    className="appearance-none bg-slate-800 text-white text-xs font-bold py-2.5 pl-3 pr-8 rounded-lg border border-slate-600 outline-none cursor-pointer hover:border-blue-500 transition-all focus:ring-2 focus:ring-blue-500/20"
+                    className="appearance-none text-xs font-bold py-2.5 pl-3 pr-8 rounded-lg border outline-none cursor-pointer transition-all focus:ring-2 focus:ring-[color:var(--accent-subtle)]"
+                    style={{ background: "var(--page-bg)", color: "var(--text-primary)", borderColor: "var(--card-border)" }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--card-border)")}
                 >
                     <option value="All">All Types</option>
                     <option value="Checkpoint">Checkpoint</option>
@@ -208,14 +214,17 @@ export default function CivitaiExplorer() {
                     <option value="TextualInversion">Embedding</option>
                     <option value="VAE">VAE</option>
                 </select>
-                <Layers size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"/>
+                <Layers size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--text-muted)" }}/>
             </div>
 
             <div className="relative">
                 <select 
                     value={selectedBaseModel}
                     onChange={(e) => setSelectedBaseModel(e.target.value)}
-                    className="appearance-none bg-slate-800 text-white text-xs font-bold py-2.5 pl-3 pr-8 rounded-lg border border-slate-600 outline-none cursor-pointer hover:border-blue-500 transition-all focus:ring-2 focus:ring-blue-500/20"
+                    className="appearance-none text-xs font-bold py-2.5 pl-3 pr-8 rounded-lg border outline-none cursor-pointer transition-all focus:ring-2 focus:ring-[color:var(--accent-subtle)]"
+                    style={{ background: "var(--page-bg)", color: "var(--text-primary)", borderColor: "var(--card-border)" }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--card-border)")}
                 >
                     <option value="All">All Base Models</option>
                     <option value="SD 1.5">SD 1.5</option>
@@ -225,31 +234,34 @@ export default function CivitaiExplorer() {
                     <option value="Illustrious">Illustrious</option>
                     <option value="SD 2.1">SD 2.1</option>
                 </select>
-                <Box size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"/>
+                <Box size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--text-muted)" }}/>
             </div>
 
             <div className="relative">
                 <select 
                     value={sort}
                     onChange={(e) => setSort(e.target.value)}
-                    className="appearance-none bg-slate-800 text-white text-xs font-bold py-2.5 pl-3 pr-8 rounded-lg border border-slate-600 outline-none cursor-pointer hover:border-blue-500 transition-all focus:ring-2 focus:ring-blue-500/20"
+                    className="appearance-none text-xs font-bold py-2.5 pl-3 pr-8 rounded-lg border outline-none cursor-pointer transition-all focus:ring-2 focus:ring-[color:var(--accent-subtle)]"
+                    style={{ background: "var(--page-bg)", color: "var(--text-primary)", borderColor: "var(--card-border)" }}
+                    onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+                    onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--card-border)")}
                 >
                     <option value="Relevancy">Relevancy</option>
                     <option value="Highest Rated">Highest Rated</option>
                     <option value="Most Downloaded">Most Downloaded</option>
                     <option value="Newest">Newest</option>
                 </select>
-                <Filter size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"/>
+                <Filter size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: "var(--text-muted)" }}/>
             </div>
 
             <button
                 onClick={() => setNsfw(!nsfw)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold border transition-all
-                    ${nsfw 
-                        ? "bg-red-500/10 text-red-400 border-red-500/50 hover:bg-red-500/20" 
-                        : "bg-emerald-500/10 text-emerald-400 border-emerald-500/50 hover:bg-emerald-500/20"
-                    }
-                `}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-bold border transition-all"
+                style={
+                    nsfw 
+                        ? { background: "rgba(239, 68, 68, 0.1)", color: "rgb(248, 113, 113)", borderColor: "rgba(239, 68, 68, 0.5)" }
+                        : { background: "var(--accent-subtle)", color: "var(--accent-text)", borderColor: "var(--accent)" }
+                }
             >
                 {nsfw ? <EyeOff size={14}/> : <Eye size={14}/>}
                 {nsfw ? "NSFW" : "SAFE"}
@@ -260,8 +272,8 @@ export default function CivitaiExplorer() {
       {/* GRID HASIL */}
       {initialLoading ? (
           <div className="text-center py-32 animate-pulse">
-              <div className="animate-spin w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-6"></div>
-              <p className="text-slate-400 font-medium">Sedang memuat model...</p>
+              <div className="animate-spin w-12 h-12 border-4 border-t-transparent rounded-full mx-auto mb-6" style={{ borderColor: "var(--accent)", borderTopColor: "transparent" }}></div>
+              <p className="font-medium" style={{ color: "var(--text-secondary)" }}>Sedang memuat model...</p>
           </div>
       ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -289,7 +301,13 @@ export default function CivitaiExplorer() {
                     .replace("NoobAI", "Noob");
 
                   return (
-                      <div key={model.id} className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden group hover:border-blue-500/50 transition-all hover:shadow-2xl hover:shadow-blue-900/10 flex flex-col h-full relative">
+                      <div 
+                         key={model.id} 
+                         className="border rounded-xl overflow-hidden group transition-all shadow-lg flex flex-col h-full relative"
+                         style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}
+                         onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")}
+                         onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--card-border)")}
+                      >
                           
                           {/* Image Preview */}
                           <div className="relative aspect-[2/3] bg-black overflow-hidden">
@@ -301,7 +319,7 @@ export default function CivitaiExplorer() {
                                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
                                   />
                               ) : (
-                                  <div className="flex items-center justify-center h-full text-slate-600 bg-slate-950 flex-col gap-2">
+                                  <div className="flex items-center justify-center h-full flex-col gap-2" style={{ background: "var(--page-bg)", color: "var(--text-muted)" }}>
                                       <AlertTriangle size={24} />
                                       <span className="text-xs">No Preview</span>
                                   </div>
@@ -340,7 +358,7 @@ export default function CivitaiExplorer() {
                           {/* Content Body */}
                           <div className="p-4 flex-1 flex flex-col gap-3">
                               <div className="flex items-start justify-between gap-2">
-                                  <h3 className="font-bold text-white leading-snug line-clamp-2 text-sm hover:text-blue-400 transition-colors cursor-default" title={model.name}>
+                                  <h3 className="font-bold leading-snug line-clamp-2 text-sm transition-colors cursor-default group-hover:text-[color:var(--accent)]" style={{ color: "var(--text-primary)" }} title={model.name}>
                                       {model.name}
                                   </h3>
                                   {model.nsfw && (
@@ -348,19 +366,19 @@ export default function CivitaiExplorer() {
                                   )}
                               </div>
 
-                              <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
+                              <div className="flex items-center gap-2 text-xs mb-1" style={{ color: "var(--text-secondary)" }}>
                                   {model.creator?.image ? (
-                                      <img src={model.creator.image} className="w-5 h-5 rounded-full border border-slate-700" alt="" />
+                                      <img src={model.creator.image} className="w-5 h-5 rounded-full border" style={{ borderColor: "var(--card-border)" }} alt="" />
                                   ) : (
-                                      <div className="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center text-[8px] font-bold">?</div>
+                                      <div className="w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-bold" style={{ background: "var(--page-bg)" }}>?</div>
                                   )}
-                                  <span className="truncate hover:text-white transition-colors">{model.creator?.username || "Unknown"}</span>
+                                  <span className="truncate hover:text-[color:var(--text-primary)] transition-colors">{model.creator?.username || "Unknown"}</span>
                               </div>
 
                               {triggerWords.length > 0 ? (
-                                  <div className="mt-auto bg-slate-950/80 p-2.5 rounded-lg border border-slate-800 hover:border-blue-500/30 transition-colors group/trigger">
+                                  <div className="mt-auto p-2.5 rounded-lg border transition-colors group/trigger" style={{ background: "var(--page-bg)", borderColor: "var(--card-border)" }} onMouseEnter={e => (e.currentTarget.style.borderColor = "var(--accent)")} onMouseLeave={e => (e.currentTarget.style.borderColor = "var(--card-border)")}>
                                       <div className="flex justify-between items-center mb-1">
-                                          <p className="text-[10px] text-slate-500 uppercase font-bold flex items-center gap-1">
+                                          <p className="text-[10px] uppercase font-bold flex items-center gap-1" style={{ color: "var(--text-muted)" }}>
                                               <Copy size={10}/> Trigger Word
                                           </p>
                                       </div>
@@ -368,18 +386,18 @@ export default function CivitaiExplorer() {
                                           onClick={() => copyTrigger(triggerWords[0])}
                                           className="flex items-center justify-between gap-2 cursor-pointer"
                                       >
-                                          <code className="text-xs text-blue-300 font-mono truncate select-none">
+                                          <code className="text-xs font-mono truncate select-none" style={{ color: "var(--accent)" }}>
                                               {triggerWords[0]}
                                           </code>
                                           {copiedWord === triggerWords[0] ? (
                                               <Check size={14} className="text-green-400 shrink-0" />
                                           ) : (
-                                              <Copy size={14} className="text-slate-600 group-hover/trigger:text-white shrink-0 transition-colors" />
+                                              <Copy size={14} className="shrink-0 transition-colors" style={{ color: "var(--text-muted)" }} />
                                           )}
                                       </div>
                                   </div>
                               ) : (
-                                  <div className="mt-auto p-3 text-[10px] text-slate-600 text-center italic bg-slate-950/30 rounded-lg border border-slate-800/50">
+                                  <div className="mt-auto p-3 text-[10px] text-center italic rounded-lg border" style={{ background: "var(--page-bg)", color: "var(--text-muted)", borderColor: "var(--card-border)" }}>
                                       No Trigger Word Required
                                   </div>
                               )}
@@ -388,7 +406,14 @@ export default function CivitaiExplorer() {
                                   href={latestVersion.downloadUrl}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="flex items-center justify-center gap-2 w-full bg-slate-800 hover:bg-blue-600 text-white text-xs font-bold py-2.5 rounded-lg transition-all border border-slate-700 hover:border-blue-500/50 hover:shadow-lg hover:shadow-blue-900/20 active:scale-[0.98]"
+                                  className="flex items-center justify-center gap-2 w-full text-white text-xs font-bold py-2.5 rounded-lg transition-all border active:scale-[0.98]"
+                                  style={{ background: "var(--accent)", borderColor: "var(--accent)" }}
+                                  onMouseEnter={e => {
+                                      e.currentTarget.style.opacity = "0.9";
+                                  }}
+                                  onMouseLeave={e => {
+                                      e.currentTarget.style.opacity = "1";
+                                  }}
                               >
                                   <Download size={14} /> 
                                   Download
@@ -404,22 +429,22 @@ export default function CivitaiExplorer() {
       {/* INFINITE SCROLL TRIGGER (LOADER BAWAH) */}
       <div ref={observerTarget} className="py-8 flex justify-center items-center h-20 w-full">
           {loadingMore && (
-             <div className="flex items-center gap-2 text-slate-500">
-                <Loader2 className="animate-spin text-blue-500" size={24} />
+             <div className="flex items-center gap-2" style={{ color: "var(--text-secondary)" }}>
+                <Loader2 className="animate-spin" style={{ color: "var(--accent)" }} size={24} />
                 <span className="text-xs font-bold">Memuat model lainnya...</span>
              </div>
           )}
           {!hasMore && !initialLoading && models.length > 0 && (
-             <span className="text-slate-600 text-xs italic opacity-50">~ End of Results ~</span>
+             <span className="text-xs italic opacity-50" style={{ color: "var(--text-muted)" }}>~ End of Results ~</span>
           )}
       </div>
 
       {/* Empty State */}
       {!initialLoading && !loadingMore && models.length === 0 && (
-        <div className="text-center py-20 bg-slate-900/30 rounded-2xl border border-slate-800 border-dashed">
-            <AlertTriangle className="mx-auto text-slate-500 mb-4 opacity-50" size={48} />
-            <h3 className="text-xl font-bold text-white mb-2">Tidak ada model ditemukan</h3>
-            <p className="text-slate-400 max-w-md mx-auto">
+        <div className="text-center py-20 rounded-2xl border border-dashed" style={{ background: "var(--page-bg)", borderColor: "var(--card-border)" }}>
+            <AlertTriangle className="mx-auto mb-4 opacity-50" style={{ color: "var(--text-muted)" }} size={48} />
+            <h3 className="text-xl font-bold mb-2" style={{ color: "var(--text-primary)" }}>Tidak ada model ditemukan</h3>
+            <p className="max-w-md mx-auto" style={{ color: "var(--text-secondary)" }}>
                 Coba ubah filter atau gunakan kata kunci lain.
             </p>
         </div>

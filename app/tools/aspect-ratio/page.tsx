@@ -1,5 +1,6 @@
 import AspectRatio from "@/components/tools/AspectRatio";
 import type { Metadata } from "next";
+import { Scaling } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Aspect Ratio Calculator",
@@ -8,15 +9,29 @@ export const metadata: Metadata = {
 
 export default function AspectRatioPage() {
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-10 text-center">
-        <h1 className="text-3xl font-bold text-white mb-2">Aspect Ratio Calculator</h1>
-        <p className="text-emerald-500">
-          Masukkan dimensi pixel untuk mendapatkan rasio layar yang tepat.
-        </p>
-      </div>
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 max-w-6xl mx-auto px-4 py-8 min-h-screen flex flex-col items-center">
       
-      <AspectRatio />
+      <section className="text-center mt-6 mb-10 relative z-10 w-full">
+        <div
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6 backdrop-blur-md border shadow-sm"
+          style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}
+        >
+          <Scaling size={14} style={{ color: "var(--accent)" }} />
+          <span className="text-xs font-bold uppercase tracking-widest" style={{ color: "var(--text-secondary)" }}>Design Tool</span>
+        </div>
+
+        <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4 tracking-tight break-words" style={{ color: "var(--text-primary)" }}>
+          Aspect Ratio <span style={{ color: "var(--accent)", filter: "drop-shadow(0 0 15px var(--accent-subtle))" }}>Calculator</span>
+        </h1>
+        <p className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto leading-relaxed font-medium" style={{ color: "var(--text-secondary)" }}>
+          Hitung proporsi gambar, temukan resolusi yang tepat, dan visualisasikan rasio aspek layar secara <b style={{ color: "var(--text-primary)" }}>interaktif</b>.
+        </p>
+      </section>
+
+      <div className="w-full">
+        <AspectRatio />
+      </div>
+
     </div>
   );
 }
