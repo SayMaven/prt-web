@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Moon, Sun, Palette } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { HexColorPicker } from "react-colorful";
 
 const PRESETS = ["#6366f1", "#10b981", "#ec4899", "#f59e0b", "#06b6d4", "#8b5cf6"];
 const LS_DARK = "prt-dark";
@@ -33,6 +34,7 @@ export default function ThemeController() {
   const [accent, setAccent] = useState("#6366f1");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const savedDark   = localStorage.getItem(LS_DARK);
@@ -48,6 +50,22 @@ export default function ThemeController() {
 
     setMounted(true);
   }, []);
+
+  // Handle click outside to close picker
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setPickerOpen(false);
+      }
+    }
+    
+    if (pickerOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [pickerOpen]);
 
   const toggleDark = useCallback(() => {
     setIsDark(prev => {
@@ -67,7 +85,7 @@ export default function ThemeController() {
   if (!mounted) return null;
 
   return (
-    <div className="flex flex-row items-end gap-3">
+    <div ref={containerRef} className="flex flex-row items-end gap-3">
 
       {/* ── Color Picker Panel ── */}
       <AnimatePresence>
@@ -77,51 +95,43 @@ export default function ThemeController() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 400, damping: 28 }}
-            className="absolute bottom-16 right-0 rounded-2xl border p-4 backdrop-blur-2xl shadow-2xl w-52"
+            className="absolute bottom-16 right-0 rounded-3xl border p-5 backdrop-blur-2xl shadow-2xl w-60"
             style={{
               background: "var(--card-bg)",
               borderColor: "var(--card-border)",
               boxShadow: `0 12px 50px var(--accent-glow)`,
             }}
           >
-            {/* Swatch */}
-            <div
-              className="w-full h-10 rounded-xl mb-4 border border-white/10"
-              style={{ background: `linear-gradient(135deg, ${accent}, ${accent}88)` }}
-            />
-
-            <p className="text-center text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "var(--text-muted)" }}>
-              Accent Color
+            <p className="text-center text-xs font-black tracking-widest uppercase mb-4" style={{ color: "var(--text-muted)" }}>
+              Warna Tema
             </p>
 
-            {/* Color Wheel button */}
-            <div className="flex justify-center mb-4">
-              <label
-                className="w-14 h-14 rounded-full cursor-pointer flex items-center justify-center border-4 border-white/20 shadow-xl relative overflow-hidden"
-                style={{ background: accent, boxShadow: `0 0 24px ${accent}88` }}
-                title="Open color wheel"
-              >
-                <Palette className="w-5 h-5 text-white pointer-events-none relative z-10" />
-                <input
-                  type="color"
-                  value={accent}
-                  onChange={(e) => changeAccent(e.target.value)}
-                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
-                />
-              </label>
+            {/* Custom Color Picker using React-Colorful */}
+            <div className="flex flex-col items-center justify-center mb-5 w-full">
+              <div className="w-full custom-color-picker rounded-2xl overflow-hidden shadow-xl border" style={{ borderColor: "var(--card-border)" }}>
+                <HexColorPicker color={accent} onChange={changeAccent} style={{ width: "100%", height: "140px" }} />
+              </div>
+              <div className="mt-3 flex items-center justify-between w-full px-2">
+                 <span className="text-[10px] font-black uppercase tracking-widest opacity-60">HEX</span>
+                 <span className="text-xs font-mono font-bold tracking-wider">{accent.toUpperCase()}</span>
+              </div>
             </div>
 
+            <p className="text-center text-[10px] font-bold tracking-widest uppercase mb-3 opacity-50" style={{ color: "var(--text-muted)" }}>
+              Presets
+            </p>
+
             {/* Presets */}
-            <div className="flex gap-2 justify-center flex-wrap">
+            <div className="grid grid-cols-3 gap-3 justify-center">
               {PRESETS.map((c) => (
                 <button
                   key={c}
                   onClick={() => changeAccent(c)}
-                  className="w-7 h-7 rounded-full border-2 transition-all duration-200 hover:scale-125 hover:shadow-lg"
+                  className="w-full aspect-square rounded-full border-2 transition-all duration-200 hover:scale-110 active:scale-95 shadow-md"
                   style={{
                     background: c,
                     borderColor: accent === c ? "white" : "transparent",
-                    boxShadow: accent === c ? `0 0 12px ${c}` : "none",
+                    boxShadow: accent === c ? `0 0 15px ${c}88` : "none",
                   }}
                 />
               ))}
@@ -175,6 +185,27 @@ export default function ThemeController() {
           />
         </button>
       </motion.div>
+
+      <style jsx global>{`
+        .custom-color-picker .react-colorful__pointer {
+          width: 20px;
+          height: 20px;
+          border-width: 3px;
+        }
+        .custom-color-picker .react-colorful__saturation {
+          border-radius: 1rem 1rem 0 0;
+          border-bottom: 1px solid var(--card-border);
+        }
+        .custom-color-picker .react-colorful__hue {
+          border-radius: 0 0 1rem 1rem;
+          height: 16px;
+        }
+        .custom-color-picker .react-colorful__hue-pointer {
+          width: 16px;
+          height: 16px;
+          border-width: 2px;
+        }
+      `}</style>
     </div>
   );
 }

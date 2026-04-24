@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { RefreshCcw, Activity, Menu } from "lucide-react";
+import { RefreshCcw, Activity, Menu, Fingerprint, Keyboard, History } from "lucide-react";
 
 // --- ICON COMPONENTS ---
 const WinIcon = () => (
@@ -11,7 +11,6 @@ const WinIcon = () => (
 );
 
 // --- DATA LAYOUT KEYBOARD (FULL SIZE 104) ---
-// Note: Layout ini sama seperti sebelumnya
 
 // 1. Function Row (Top)
 const ROW_F = [
@@ -53,7 +52,6 @@ const MAIN_ROWS = [
     { code: "KeyV", label: "V" }, { code: "KeyB", label: "B" }, { code: "KeyN", label: "N" }, { code: "KeyM", label: "M" },
     { code: "Comma", label: "," }, { code: "Period", label: "." }, { code: "Slash", label: "/" }, { code: "ShiftRight", label: "Shift", w: 2.75 }
   ],
-  // ROW 5: Bottom Row (Fixed: Removed Right Win Key)
   [
     { code: "ControlLeft", label: "Ctrl", w: 1.25 }, 
     { code: "MetaLeft", label: "Win", w: 1.25, icon: <WinIcon/> }, 
@@ -93,8 +91,8 @@ export default function KeyMaster() {
   };
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    // Coba prevent default, tapi PrintScreen sering lolos karena level OS
-    if(e.code !== "F5" && e.code !== "F12") {
+    // Prevent default on most keys so scrolling/shortcuts don't interrupt
+    if(e.code !== "F5" && e.code !== "F12" && !e.ctrlKey) {
         e.preventDefault();
     }
     
@@ -111,12 +109,11 @@ export default function KeyMaster() {
     setLastEvent({ code: e.code, key: e.key });
   }, []);
 
-  // --- PERBAIKAN UTAMA DI SINI (HandleKeyUp) ---
   const handleKeyUp = useCallback((e: KeyboardEvent) => {
-    e.preventDefault();
+    if(e.code !== "F5" && e.code !== "F12" && !e.ctrlKey) {
+        e.preventDefault();
+    }
     
-    // Logika Tambahan: Jika KeyDown dicuri OS (misal PrintScreen), 
-    // kita tangkap di KeyUp agar tetap terhitung sebagai "Tested".
     setHistoryKeys((prev) => new Set(prev).add(e.code));
     setLastEvent({ code: e.code, key: e.key });
 
@@ -134,8 +131,8 @@ export default function KeyMaster() {
   }, []);
 
   useEffect(() => {
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("keydown", handleKeyDown, { passive: false });
+    window.addEventListener("keyup", handleKeyUp, { passive: false });
     window.addEventListener("blur", handleBlur);
     
     return () => {
@@ -157,15 +154,18 @@ export default function KeyMaster() {
     const isActive = activeKeys.has(code);
     const isTested = historyKeys.has(code);
 
-    let baseStyles = "relative flex items-center justify-center rounded bg-slate-800 border-b-4 border-slate-950 text-slate-500 font-bold text-xs transition-all duration-75 select-none";
+    let baseStyles = "relative flex items-center justify-center rounded-lg border-b-4 font-bold text-xs transition-all duration-75 select-none";
+    let colorStyles = "";
     
     if (isStatic) {
-        baseStyles = "relative flex items-center justify-center rounded bg-slate-900 border-b-4 border-black text-slate-700 font-bold text-xs opacity-50 cursor-not-allowed";
+        colorStyles = "bg-black/40 border-black/80 text-black/40 cursor-not-allowed";
     } else {
         if (isActive) {
-            baseStyles = "relative flex items-center justify-center rounded bg-emerald-500 border-b-0 border-emerald-700 text-black font-bold text-xs translate-y-1 shadow-inner";
+            colorStyles = "text-white translate-y-1 shadow-inner border-b-0";
         } else if (isTested) {
-            baseStyles = "relative flex items-center justify-center rounded bg-slate-700 border-b-4 border-slate-900 text-emerald-400 font-bold text-xs";
+            colorStyles = "border-b-4 text-white opacity-90";
+        } else {
+            colorStyles = "bg-black/20 border-black/50 text-white/40";
         }
     }
 
@@ -174,130 +174,172 @@ export default function KeyMaster() {
     if (h !== 1) style.gridRow = `span ${h}`; 
     if (w > 1 && className.includes("grid")) style.gridColumn = `span ${w}`; 
 
+    if (!isStatic && isActive) {
+        style.background = "var(--accent)";
+        style.boxShadow = "inset 0 0 10px rgba(0,0,0,0.5)";
+    } else if (!isStatic && isTested) {
+        // Create a darker variant of accent for tested keys using CSS mix-blend-mode or direct variable
+        style.background = "var(--accent)";
+        style.borderColor = "var(--accent-subtle, rgba(0,0,0,0.5))";
+        style.opacity = 0.5; // Dim the tested key
+    } else if (!isStatic && !isTested) {
+        style.borderColor = "var(--card-border)";
+    }
+
     return (
       <div 
-        className={`${baseStyles} ${className}`} 
+        className={`${baseStyles} ${colorStyles} ${className} shadow-sm backdrop-blur-sm overflow-hidden`} 
         style={{ 
             width: className.includes("flex-none") ? `${w * 38}px` : undefined, 
             flex: className.includes("flex-1") ? w : undefined,
             height: h > 1 ? "100%" : "48px",
             ...style
         }}
-        title={isStatic ? "Tombol Fn tidak dapat dideteksi oleh browser (Hardware Layer)" : label}
+        title={isStatic ? "Tombol Fn tidak dapat dideteksi oleh browser" : label}
       >
-        {icon ? icon : label}
+        {/* Glow effect on active */}
+        {isActive && !isStatic && (
+            <div className="absolute inset-0 bg-white/20"></div>
+        )}
+        <span className="relative z-10">{icon ? icon : label}</span>
       </div>
     );
   };
 
   return (
-    <div className="max-w-[1400px] mx-auto space-y-8">
+    <div className="max-w-[1400px] mx-auto space-y-8 animate-in fade-in zoom-in-95 duration-500">
       
       {/* STATS BAR */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex flex-col items-center">
-            <span className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Active Keys</span>
-            <span className={`text-2xl font-mono font-bold ${nkroCount > 6 ? "text-emerald-400" : "text-white"}`}>
-                {nkroCount} <span className="text-sm text-slate-600">NKRO</span>
+        <div className="border rounded-2xl p-4 flex flex-col items-center justify-center transition-all shadow-lg backdrop-blur-md relative overflow-hidden group" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
+            <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:scale-110 transition-transform"><Fingerprint size={40} style={{ color: "var(--accent)" }}/></div>
+            <span className="text-[10px] uppercase font-black tracking-widest mb-1 opacity-70" style={{ color: "var(--text-secondary)" }}>Active Keys</span>
+            <span className={`text-3xl font-mono font-black ${nkroCount > 6 ? "" : ""}`} style={nkroCount > 6 ? { color: "var(--accent)" } : { color: "var(--text-primary)" }}>
+                {nkroCount} <span className="text-sm font-bold opacity-50">NKRO</span>
             </span>
         </div>
-        <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex flex-col items-center">
-            <span className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Last Code</span>
-            <span className="text-lg font-mono font-bold text-blue-400 truncate w-full text-center">
+        
+        <div className="border rounded-2xl p-4 flex flex-col items-center justify-center transition-all shadow-lg backdrop-blur-md relative overflow-hidden group" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
+            <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:scale-110 transition-transform"><Keyboard size={40} style={{ color: "var(--accent)" }}/></div>
+            <span className="text-[10px] uppercase font-black tracking-widest mb-1 opacity-70" style={{ color: "var(--text-secondary)" }}>Last Code</span>
+            <span className="text-xl font-mono font-black truncate w-full text-center" style={{ color: "var(--accent)" }}>
                 {lastEvent?.code || "-"}
             </span>
         </div>
-        <div className="bg-slate-900 border border-slate-800 p-3 rounded-xl flex flex-col items-center">
-            <span className="text-slate-500 text-[10px] uppercase font-bold tracking-wider">Tested</span>
-            <span className="text-2xl font-mono font-bold text-white">
-                {historyKeys.size}<span className="text-slate-600 text-sm">/104</span>
+        
+        <div className="border rounded-2xl p-4 flex flex-col items-center justify-center transition-all shadow-lg backdrop-blur-md relative overflow-hidden group" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
+            <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:scale-110 transition-transform"><History size={40} style={{ color: "var(--accent)" }}/></div>
+            <span className="text-[10px] uppercase font-black tracking-widest mb-1 opacity-70" style={{ color: "var(--text-secondary)" }}>Tested</span>
+            <span className="text-3xl font-mono font-black" style={{ color: "var(--text-primary)" }}>
+                {historyKeys.size}<span className="text-sm font-bold opacity-50">/104</span>
             </span>
         </div>
+        
         <button 
             onClick={resetTest}
-            className="bg-red-900/20 border border-red-500/30 hover:bg-red-900/40 p-3 rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors group"
+            className="border rounded-2xl p-4 flex flex-col items-center justify-center transition-all shadow-lg backdrop-blur-md hover:scale-95 active:scale-90 group relative overflow-hidden"
+            style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}
         >
-            <RefreshCcw className="text-red-400 group-hover:rotate-180 transition-transform duration-500 mb-1" size={18} />
-            <span className="text-red-300 text-[10px] font-bold uppercase">Reset</span>
+            <div className="absolute inset-0 bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <RefreshCcw className="mb-2 text-red-500 group-hover:rotate-180 transition-transform duration-700" size={24} />
+            <span className="text-[10px] font-black uppercase tracking-widest text-red-500">Reset</span>
         </button>
       </div>
 
       {/* KEYBOARD VISUALIZER CONTAINER */}
-      <div className="flex justify-center overflow-x-auto pb-8">
-        <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-2xl inline-block min-w-[1000px]">
+      <div className="flex justify-center overflow-x-auto pb-8 pt-4 custom-scrollbar">
+        <div className="p-8 sm:p-10 rounded-[3rem] border shadow-2xl inline-block min-w-[1000px] relative overflow-hidden" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
             
-            {/* ROW 0: ESC & F-KEYS */}
-            <div className="flex gap-12 mb-4">
-                <KeyCap {...ROW_F[0]} className="w-[48px]" /> {/* Esc */}
-                <div className="flex gap-2"> {/* F1-F4 */}
-                    {ROW_F.slice(2, 6).map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
-                </div>
-                <div className="flex gap-2"> {/* F5-F8 */}
-                    {ROW_F.slice(7, 11).map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
-                </div>
-                <div className="flex gap-2"> {/* F9-F12 */}
-                    {ROW_F.slice(12).map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
-                </div>
-                {/* Print Screen Block */}
-                <div className="flex gap-2 ml-auto">
-                    {ROW_NAV_TOP.map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
-                </div>
-            </div>
+            {/* Dekorasi Cahaya Keyboard Chassis */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-20 blur-[100px] opacity-20 pointer-events-none" style={{ background: "var(--accent)" }}></div>
 
-            {/* MAIN BODY: 3 COLUMNS (Main, Nav, Num) */}
-            <div className="flex gap-4">
-                
-                {/* 1. MAIN ALPHANUMERIC BOARD */}
-                <div className="flex flex-col gap-2 w-[750px]">
-                    {MAIN_ROWS.map((row, rIdx) => (
-                        <div key={rIdx} className="flex gap-2 w-full">
-                            {row.map((k: any) => (
-                                <KeyCap key={k.code} {...k} className="flex-1" />
-                            ))}
-                        </div>
-                    ))}
-                </div>
-
-                {/* 2. NAVIGATION CLUSTER */}
-                <div className="flex flex-col justify-between w-[156px]">
-                    {/* Ins/Home/PgUp Block */}
-                    <div className="flex flex-col gap-2">
-                        <div className="flex gap-2">
-                            {NAV_CLUSTER[0].map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
-                        </div>
-                        <div className="flex gap-2">
-                            {NAV_CLUSTER[1].map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
-                        </div>
+            <div className="relative z-10">
+                {/* ROW 0: ESC & F-KEYS */}
+                <div className="flex gap-12 mb-4">
+                    <KeyCap {...ROW_F[0]} className="w-[48px]" /> {/* Esc */}
+                    <div className="flex gap-2"> {/* F1-F4 */}
+                        {ROW_F.slice(2, 6).map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
                     </div>
-
-                    {/* Arrow Keys */}
-                    <div className="flex flex-col gap-2">
-                        <div className="flex justify-center">
-                            <KeyCap code="ArrowUp" label="↑" className="w-[48px]" />
-                        </div>
-                        <div className="flex gap-2">
-                            <KeyCap code="ArrowLeft" label="←" className="w-[48px]" />
-                            <KeyCap code="ArrowDown" label="↓" className="w-[48px]" />
-                            <KeyCap code="ArrowRight" label="→" className="w-[48px]" />
-                        </div>
+                    <div className="flex gap-2"> {/* F5-F8 */}
+                        {ROW_F.slice(7, 11).map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
+                    </div>
+                    <div className="flex gap-2"> {/* F9-F12 */}
+                        {ROW_F.slice(12).map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
+                    </div>
+                    {/* Print Screen Block */}
+                    <div className="flex gap-2 ml-auto">
+                        {ROW_NAV_TOP.map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
                     </div>
                 </div>
 
-                {/* 3. NUMPAD (Grid for alignment) */}
-                <div className="grid grid-cols-4 gap-2 w-[212px] h-fit">
-                    {NUMPAD.map(k => (
-                        <KeyCap key={k.code} {...k} className={`grid-col-span-${k.w || 1} w-full`} />
-                    ))}
-                </div>
+                {/* MAIN BODY: 3 COLUMNS (Main, Nav, Num) */}
+                <div className="flex gap-4">
+                    
+                    {/* 1. MAIN ALPHANUMERIC BOARD */}
+                    <div className="flex flex-col gap-2 w-[750px]">
+                        {MAIN_ROWS.map((row, rIdx) => (
+                            <div key={rIdx} className="flex gap-2 w-full">
+                                {row.map((k: any) => (
+                                    <KeyCap key={k.code} {...k} className="flex-1" />
+                                ))}
+                            </div>
+                        ))}
+                    </div>
 
+                    {/* 2. NAVIGATION CLUSTER */}
+                    <div className="flex flex-col justify-between w-[156px]">
+                        {/* Ins/Home/PgUp Block */}
+                        <div className="flex flex-col gap-2">
+                            <div className="flex gap-2">
+                                {NAV_CLUSTER[0].map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
+                            </div>
+                            <div className="flex gap-2">
+                                {NAV_CLUSTER[1].map(k => <KeyCap key={k.code} {...k} className="w-[48px]" />)}
+                            </div>
+                        </div>
+
+                        {/* Arrow Keys */}
+                        <div className="flex flex-col gap-2">
+                            <div className="flex justify-center">
+                                <KeyCap code="ArrowUp" label="↑" className="w-[48px]" />
+                            </div>
+                            <div className="flex gap-2">
+                                <KeyCap code="ArrowLeft" label="←" className="w-[48px]" />
+                                <KeyCap code="ArrowDown" label="↓" className="w-[48px]" />
+                                <KeyCap code="ArrowRight" label="→" className="w-[48px]" />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 3. NUMPAD (Grid for alignment) */}
+                    <div className="grid grid-cols-4 gap-2 w-[212px] h-fit">
+                        {NUMPAD.map(k => (
+                            <KeyCap key={k.code} {...k} className={`grid-col-span-${k.w || 1} w-full`} />
+                        ))}
+                    </div>
+
+                </div>
             </div>
         </div>
       </div>
 
-      <div className="text-center text-xs text-slate-500 flex items-center justify-center gap-2">
-        <Activity size={14} className="text-emerald-500"/> <span className="text-emerald-500">Listening...</span> Tekan tombol fisik keyboard Anda.
+      <div className="text-center flex justify-center mt-4">
+        <div className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full border shadow-sm" style={{ background: "var(--card-bg)", borderColor: "var(--card-border)" }}>
+            <div className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "var(--accent)" }}></span>
+                <span className="relative inline-flex rounded-full h-3 w-3" style={{ background: "var(--accent)" }}></span>
+            </div>
+            <span className="text-xs font-black uppercase tracking-widest" style={{ color: "var(--text-primary)" }}>Listening for Input...</span> 
+            <span className="text-xs font-medium ml-2 opacity-50" style={{ color: "var(--text-secondary)" }}>(Tekan tombol fisik keyboard Anda)</span>
+        </div>
       </div>
 
+      <style jsx global>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(150,150,150,0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(150,150,150,0.4); }
+      `}</style>
     </div>
   );
 }
