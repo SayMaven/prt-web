@@ -97,11 +97,11 @@ export default function Home() {
           className="mt-10 flex flex-wrap justify-center gap-4"
         >
           <Link
-            href="/portfolio"
+            href="/projects"
             className="group flex items-center gap-2 px-6 py-3 text-white font-bold rounded-xl transition-all"
             style={{ background: "var(--accent)", boxShadow: "0 0 20px var(--accent-glow)" }}
           >
-            <span>Lihat Portfolio</span>
+            <span>Lihat Projects</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
           <Link
