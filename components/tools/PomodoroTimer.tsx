@@ -251,7 +251,7 @@ export default function PomodoroTimer() {
                       onChange={(e) => setNewTask(e.target.value)}
                       placeholder="Apa yang ingin dikerjakan?" 
                       className="w-full bg-white/5 border border-white/10 text-white placeholder:text-white/40 text-sm px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all"
-                      style={{ focusRingColor: currentAccent }}
+                      style={{ "--tw-ring-color": currentAccent } as React.CSSProperties}
                   />
                   <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 transition-colors">
                       <span className="text-xs font-bold px-2">ADD</span>

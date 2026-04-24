@@ -11,7 +11,7 @@ import {
 // --- HELPER: WMO Weather Code ---
 const getWeatherInfo = (code: number, isDay: number) => {
   const iconProps = { size: 64, strokeWidth: 1.5 };
-  const weatherMap: Record<number, { label: string; icon: JSX.Element; color: string }> = {
+  const weatherMap: Record<number, { label: string; icon: React.ReactNode; color: string }> = {
     0: { label: "Cerah", icon: <Sun {...iconProps} />, color: "text-amber-400" },
     1: { label: "Cerah Berawan", icon: <CloudSun {...iconProps} />, color: "text-orange-300" },
     2: { label: "Berawan", icon: <Cloud {...iconProps} />, color: "text-slate-300" },
