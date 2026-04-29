@@ -296,4 +296,31 @@ export const tools: Tool[] = [
     status: "New",
     category: "Utility"
   },
+  {
+    id: 27,
+    title: "Ambient Sound",
+    description: "Generator white noise dan binaural beats sintetis murni untuk tingkatkan fokus.",
+    icon: "🎧",
+    link: "/tools/ambient-sound",
+    status: "New",
+    category: "Utility"
+  },
+  {
+    id: 28,
+    title: "Base64 Encoder",
+    description: "Encode atau decode string teks dan file gambar ke format Base64 secara instan.",
+    icon: "🔤",
+    link: "/tools/base64",
+    status: "New",
+    category: "Dev"
+  },
+  {
+    id: 29,
+    title: "SEO Meta Preview",
+    description: "Masukkan judul, deskripsi, dan gambar untuk melihat live-preview saat website dibagikan ke Google, Twitter, dan Discord.",
+    icon: "🔍",
+    link: "/tools/seo-preview",
+    status: "New",
+    category: "Dev"
+  },
 ];
